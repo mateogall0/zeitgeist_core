@@ -1,5 +1,6 @@
 #include "thread.h"
 #include "queue.h"
+#include "socket.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -7,16 +8,7 @@
 
 int main()
 {
-	jobs_queue_t *q = init_jobs_queue();
-
-	for (int i = 0; i < 10; i++)
-	{
-		job_t *j = malloc(sizeof(job_t));
-		push_job(q, j);
-	}
-
-	pall_queue(q);
-
-	delete_jobs_queue(q);
+	server_socket_conn_t *ssc = init_server_socket_conn(8000, 1);
+	close_server_socket_conn(ssc);
 	return (0);
 }
