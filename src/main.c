@@ -1,15 +1,22 @@
 #include "thread.h"
+#include "queue.h"
 #include "stdio.h"
 #include <stdint.h>
+#include <stdlib.h>
 
 
 int main()
 {
-	uint32_t i;
-	size_t size = 4;
-	thread_pool_t *pool = init_thread_pool(size);
-	for (i = 0; i <size; i++)
-		printf("%p\n", &pool->threads[i]);
-	destroy_thread_pool(pool);
+	jobs_queue_t *q = init_jobs_queue();
+
+	for (int i = 0; i < 10; i++) {
+		job_t *j = malloc(sizeof(job_t));
+		push_job(q, j);
+	}
+	printf("Size so far: %lu\n", q->size);
+
+	pall_queue(q);
+
+	delete_jobs_queue(q);
 	return (0);
 }
