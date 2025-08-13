@@ -9,6 +9,7 @@
 int main()
 {
 	server_socket_conn_t *ssc = init_server_socket_conn(8000, 1);
+	server_loop(ssc);
 	close_server_socket_conn(ssc);
 	return (0);
 }
