@@ -12,12 +12,7 @@ typedef enum {
 	METHODS_COUNT
 } methods;
 
-const char *methods_str[METHODS_COUNT] = {
-    "GET",
-    "PUT",
-    "DELETE",
-    "POST"
-};
+extern const char *methods_str[METHODS_COUNT];
 
 typedef struct {
 	char *content_type;
@@ -28,7 +23,7 @@ typedef struct {
 typedef struct endpoint_s{
 	methods method;
 	char *target;
-	char (*handler)(request_t *);
+	char *(*handler)(request_t *);
 	struct endpoint_s *next;
 } endpoint_t;
 
@@ -36,11 +31,11 @@ typedef struct {
 	endpoint_t *head;
 } endpoint_list_t;
 
-endpoint_list_t *endpoints = NULL;
+extern endpoint_list_t *endpoints;
 
 endpoint_list_t *init_endpoints_list();
-endpoint_t *set_endpoint(char *method, char *target, char (*handler)(request_t *));
-int32_t print_endpoint(endpoint_t e);
+endpoint_t *set_endpoint(methods method, char *target, char *(*handler)(request_t *));
+int32_t print_endpoint(endpoint_t *e);
 int32_t pall_endpoints();
 void destroy_endpoints();
 

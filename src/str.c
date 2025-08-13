@@ -1,5 +1,7 @@
 #include "string.h"
 #include <stdint.h>
+#include <stddef.h>
+#include <string.h>
 
 
 int8_t string_in_array(const char *str, const char *arr[], size_t size)

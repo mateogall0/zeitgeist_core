@@ -15,11 +15,11 @@ volatile sig_atomic_t stop_loop = 0;
 server_socket_conn_t *init_server_socket_conn(uint32_t port, uint8_t verbose)
 {
     int32_t server;
-    struct sockaddr_in server_addr, client_addr;
+    struct sockaddr_in server_addr, client_addr = {0};
     socklen_t client_addr_len = sizeof(client_addr);
     server_socket_conn_t *ssc = (server_socket_conn_t *)malloc(sizeof(server_socket_conn_t));
-	
-	
+
+
 	server = socket(AF_INET, SOCK_STREAM, 0);
     if (server == -1)
     {
