@@ -11,7 +11,9 @@
 char *example_handler(request_t *r)
 {
 	(void)r;
-	static char msg[20];
+	char *msg = calloc(20, sizeof(char));
+	if (!msg)
+		return (NULL);
     strcpy(msg, "Hello World");
     return msg;
 }

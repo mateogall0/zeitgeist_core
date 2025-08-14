@@ -74,6 +74,7 @@ void server_loop(thread_pool_t *pool)
 {
     stop_loop = 0;
     signal(SIGINT, _handle_sigint);
+	signal(SIGPIPE, SIG_IGN);  // disable server crash when client closes on `send`
 
 	if (!ssc)
 		return;

@@ -19,13 +19,18 @@ request_t *_parse_request(char *buff)
 	if (!req)
 		return (NULL);
 
+
+	req->method = NULL;
+	req->target = NULL;
+	req->content_type = NULL;
+	req->headers = NULL;
+
 	req->body = sstrdup(cut_after_first_delim(buff, "\n\n"));
 
 	line = strtok(buff, "\n");
 	while(line)
 	{
 		key = sstrdup(line);
-		printf("key: %s$\n", key);
 		switch (i) {
 		case METHOD:
 			value = cut_after_first_delim(key, " ");
@@ -88,6 +93,9 @@ void respond(int32_t client_fd, char *buffer)
 		return;
 	res = e->handler(req);
 	send(client_fd, res, strlen(res), 0);
+	if (res)
+		free(res);
+	free_request(req);
 }
 
 
@@ -109,6 +117,8 @@ void free_request(request_t *req)
 		return;
 	if (req->method)
 		free(req->method);
+	if (req->target)
+		free(req->target);
 	if (req->headers)
 		free(req->headers);
 	if (req->content_type)
