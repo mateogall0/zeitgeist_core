@@ -1,4 +1,5 @@
 #include "api/socket.h"
+#include "api/response.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -121,10 +122,9 @@ void server_loop(server_socket_conn_t *ssc)
 				}
 				else
 				{
-					// Null-terminate and print
+					// Null-terminate
 					buffer[bytes] = '\0';
-					printf("Received from fd=%d: %s\n", client_fd, buffer);
-					send(client_fd, buffer, bytes, 0);
+					respond(client_fd, buffer);
 				}
 			}
 		}

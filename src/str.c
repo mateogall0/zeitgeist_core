@@ -15,3 +15,20 @@ int8_t string_in_array(const char *str, const char *arr[], size_t size)
     }
     return (0);
 }
+
+char *cut_after_first_delim(const char *src, const char *delim)
+{
+	char *after, *split;
+
+	if (!src || !delim)
+		return (NULL);
+	split = strstr(src, delim);
+    if (split)
+	{
+		*split = '\0';
+		if (*(split + 2) != '\0')
+			after = split + 2;
+		return (strdup(after));
+	}
+	return (NULL);
+}

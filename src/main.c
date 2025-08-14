@@ -19,16 +19,18 @@ char *example_handler(request_t *r)
 
 int main()
 {
-
-	/* server_socket_conn_t *ssc = init_server_socket_conn(8000, 1); */
-	/* server_loop(ssc); */
-	/* close_server_socket_conn(ssc); */
-
 	init_endpoints_list();
 	set_endpoint(GET, "/hello/world", example_handler);
 	pall_endpoints();
-	destroy_endpoints();
 
+	init_jobs_queue();
+
+
+	server_socket_conn_t *ssc = init_server_socket_conn(8000, 1);
+	server_loop(ssc);
+
+	close_server_socket_conn(ssc);
+	destroy_endpoints();
 
 	return (0);
 }

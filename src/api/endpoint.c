@@ -86,3 +86,35 @@ void destroy_endpoints()
 	free(endpoints);
 	endpoints = NULL;
 }
+
+endpoint_t *find_endpoint(methods method, char *target)
+{
+	endpoint_t *current;
+
+	if (!endpoints || method < 0 || method >= METHODS_COUNT || !target)
+		return (NULL);
+
+	current = endpoints->head;
+
+	while (current)
+	{
+		if (current->method == method && strcmp(target, current->target) == 0)
+			return (current);
+	}
+	return (NULL);
+}
+
+methods string_to_method(const char *str)
+{
+	int32_t i;
+
+	if(!str)
+		return (METHODS_COUNT);
+
+    for (i = 0; i < METHODS_COUNT; i++)
+	{
+        if (strcmp(str, methods_str[i]) == 0)
+            return ((methods)i);
+    }
+    return (METHODS_COUNT);
+}
