@@ -9,7 +9,7 @@
 #include <time.h>
 
 
-thread_pool_t *init_thread_pool(size_t size, jobs_queue_t *queue)
+thread_pool_t *init_thread_pool(size_t size)
 {
 	thread_pool_t *new_pool = (thread_pool_t *)malloc(sizeof(thread_pool_t));
 	uint32_t i;
@@ -31,7 +31,7 @@ thread_pool_t *init_thread_pool(size_t size, jobs_queue_t *queue)
 	new_pool->size = size;
 	new_pool->stop = 0;
 
-	new_pool->queue = queue;
+	new_pool->queue = jobs_queue;
 	for (i = 0; i < size; i++)
 		pthread_create(&new_pool->threads[i], NULL, worker_loop, new_pool);
 
@@ -85,7 +85,7 @@ void *worker_loop(void *arg)
         if (job)
 		{
             /* printf("Thread %lu processing job %d\n", pthread_self(), job->data); */
-            sleep(1); //example
+            job->func(job->client_fd, job->data);
             free_job(job);
         }
     }

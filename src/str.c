@@ -18,17 +18,31 @@ int8_t string_in_array(const char *str, const char *arr[], size_t size)
 
 char *cut_after_first_delim(const char *src, const char *delim)
 {
-	char *after, *split;
+	char *split;
+    char *after = (NULL);
 
-	if (!src || !delim)
+    if (!src || !delim)
+        return (NULL);
+
+    split = strstr(src, delim);
+    if (!split)
+        return (NULL);
+
+    *split = '\0';
+    split += strlen(delim);
+
+    if (*split != '\0')
+        after = split;
+
+    if (after)
+        return after;
+
+    return (NULL);
+}
+
+char *sstrdup(char *src)
+{
+	if (!src)
 		return (NULL);
-	split = strstr(src, delim);
-    if (split)
-	{
-		*split = '\0';
-		if (*(split + 2) != '\0')
-			after = split + 2;
-		return (strdup(after));
-	}
-	return (NULL);
+	return (strdup(src));
 }

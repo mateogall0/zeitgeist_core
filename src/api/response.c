@@ -19,12 +19,13 @@ request_t *_parse_request(char *buff)
 	if (!req)
 		return (NULL);
 
-	req->body = strdup(cut_after_first_delim(buff, "\n\n"));
+	req->body = sstrdup(cut_after_first_delim(buff, "\n\n"));
 
 	line = strtok(buff, "\n");
 	while(line)
 	{
-		key = strdup(line);
+		key = sstrdup(line);
+		printf("key: %s$\n", key);
 		switch (i) {
 		case METHOD:
 			value = cut_after_first_delim(key, " ");
@@ -33,8 +34,8 @@ request_t *_parse_request(char *buff)
 				free_request(req);
 				return (NULL);
 			}
-			req->method = strdup(key);
-			req->target = strdup(value);
+			req->method = sstrdup(key);
+			req->target = sstrdup(value);
 			break;
 		case CONTENT_TYPE:
 			value = cut_after_first_delim(key, ": ");
@@ -44,7 +45,7 @@ request_t *_parse_request(char *buff)
 				free(key);
 				return (NULL);
 			}
-			req->content_type = strdup(value);
+			req->content_type = sstrdup(value);
 			break;
 		case HEADERS:
 			value = cut_after_first_delim(key, ": ");
@@ -54,7 +55,7 @@ request_t *_parse_request(char *buff)
 				free(key);
 				return (NULL);
 			}
-			req->headers = strdup(value);
+			req->headers = sstrdup(value);
 			break;
 		default:
 			free_request(req);
@@ -74,8 +75,6 @@ void respond(int32_t client_fd, char *buffer)
     request_t *req = _parse_request(buffer);
 	methods m;
 	endpoint_t *e;
-
-	free(buffer);
 	if (!req)
 		return;
 

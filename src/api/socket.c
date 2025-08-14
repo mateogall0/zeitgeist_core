@@ -1,5 +1,6 @@
 #include "api/socket.h"
 #include "api/response.h"
+#include "queue.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -69,7 +70,7 @@ int32_t _set_nonblocking(int32_t fd) {
     return fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 }
 
-void server_loop()
+void server_loop(thread_pool_t *pool)
 {
     stop_loop = 0;
     signal(SIGINT, _handle_sigint);
@@ -132,8 +133,9 @@ void server_loop()
 				{
 					// Null-terminate
 					buffer[bytes] = '\0';
-
-					respond(client_fd, buffer);
+					job_t *job = create_job(respond, client_fd, buffer);
+					if (job)
+						push_job(job, pool);
 				}
 			}
 		}
@@ -150,4 +152,5 @@ void close_server_socket_conn()
 		puts("\nClosing server...");
 	close(ssc->server);
 	free(ssc);
+	ssc = NULL;
 }

@@ -2,10 +2,11 @@
 #define THREAD_H
 
 #include "queue.h"
-
 #include <pthread.h>
+#include <stdint.h>
 
-typedef struct {
+typedef struct thread_pool_s
+{
     pthread_t *threads;
 	size_t size;
 	jobs_queue_t *queue;
@@ -15,7 +16,7 @@ typedef struct {
 } thread_pool_t;
 
 
-thread_pool_t *init_thread_pool(size_t size, jobs_queue_t *queue);
+thread_pool_t *init_thread_pool(size_t size);
 void destroy_thread_pool(thread_pool_t* pool);
 void *worker_loop(void *arg);
 

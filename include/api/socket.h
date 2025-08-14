@@ -19,6 +19,8 @@
 #define TIMEOUT 1000
 #endif
 
+#include "thread.h"
+
 #include <arpa/inet.h>
 #include <stdint.h>
 
@@ -35,8 +37,7 @@ typedef struct {
 extern server_socket_conn_t *ssc;
 
 void init_server_socket_conn(uint32_t port, uint8_t verbose);
-void server_socket_conn_loop();
-void server_loop();
+void server_loop(thread_pool_t *pool);
 void close_server_socket_conn();
 
 #endif
