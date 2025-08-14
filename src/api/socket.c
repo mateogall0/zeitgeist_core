@@ -132,6 +132,7 @@ void server_loop()
 				{
 					// Null-terminate
 					buffer[bytes] = '\0';
+
 					respond(client_fd, buffer);
 				}
 			}

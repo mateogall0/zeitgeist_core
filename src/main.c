@@ -23,14 +23,16 @@ int main()
 	set_endpoint(GET, "/hello/world", example_handler);
 	pall_endpoints();
 
-	init_jobs_queue();
-
+	jobs_queue_t * jq = init_jobs_queue();
+	thread_pool_t *tp = init_thread_pool(4, jq);
 
 	init_server_socket_conn(8000, 1);
 	server_loop();
 
 	close_server_socket_conn();
 	destroy_endpoints();
+	destroy_thread_pool(tp);
+	delete_jobs_queue(jq);
 
 	return (0);
 }
