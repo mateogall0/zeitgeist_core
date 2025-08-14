@@ -13,19 +13,25 @@
 
 volatile sig_atomic_t stop_loop = 0;
 
-server_socket_conn_t *init_server_socket_conn(uint32_t port, uint8_t verbose)
+server_socket_conn_t *ssc = NULL;
+
+void init_server_socket_conn(uint32_t port, uint8_t verbose)
 {
     int32_t server;
     struct sockaddr_in server_addr, client_addr = {0};
     socklen_t client_addr_len = sizeof(client_addr);
-    server_socket_conn_t *ssc = (server_socket_conn_t *)malloc(sizeof(server_socket_conn_t));
+	if (ssc)
+		return;
+    ssc = (server_socket_conn_t *)malloc(sizeof(server_socket_conn_t));
+	if (!ssc)
+		return;
 
 
 	server = socket(AF_INET, SOCK_STREAM, 0);
     if (server == -1)
     {
         perror("Socket creation failed");
-        return (NULL);
+        return;
     }
 
 	server_addr.sin_family = AF_INET;
@@ -36,12 +42,12 @@ server_socket_conn_t *init_server_socket_conn(uint32_t port, uint8_t verbose)
         sizeof(server_addr)) < 0)
     {
         perror("Bind failed");
-        return (NULL);
+        return;
     }
 
     if (listen(server, MAX_SOCKET_CONNECTIONS) < 0) {
         perror("Listen failed");
-        return (NULL);
+        return;
     }
 	ssc->port = port;
 	ssc->verbose = verbose;
@@ -50,7 +56,6 @@ server_socket_conn_t *init_server_socket_conn(uint32_t port, uint8_t verbose)
 	ssc->client_addr = client_addr;
 	if (verbose)
 		printf("Server now running at %d\n", port);
-	return (ssc);
 }
 
 void _handle_sigint(int sig) {
@@ -64,10 +69,13 @@ int32_t _set_nonblocking(int32_t fd) {
     return fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 }
 
-void server_loop(server_socket_conn_t *ssc)
+void server_loop()
 {
     stop_loop = 0;
     signal(SIGINT, _handle_sigint);
+
+	if (!ssc)
+		return;
 
     int32_t epoll_fd = epoll_create1(0);
     if (epoll_fd < 0) {
@@ -133,8 +141,10 @@ void server_loop(server_socket_conn_t *ssc)
     close(epoll_fd);
 }
 
-void close_server_socket_conn(server_socket_conn_t *ssc)
+void close_server_socket_conn()
 {
+	if (!ssc)
+		return;
 	if (ssc->verbose)
 		puts("\nClosing server...");
 	close(ssc->server);

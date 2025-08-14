@@ -32,9 +32,11 @@ typedef struct {
 } server_socket_conn_t;
 
 
-server_socket_conn_t *init_server_socket_conn(uint32_t port, uint8_t verbose);
-void server_socket_conn_loop(server_socket_conn_t *ssc);
-void server_loop(server_socket_conn_t *ssc);
-void close_server_socket_conn(server_socket_conn_t *ssc);
+extern server_socket_conn_t *ssc;
+
+void init_server_socket_conn(uint32_t port, uint8_t verbose);
+void server_socket_conn_loop();
+void server_loop();
+void close_server_socket_conn();
 
 #endif

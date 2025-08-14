@@ -26,10 +26,10 @@ int main()
 	init_jobs_queue();
 
 
-	server_socket_conn_t *ssc = init_server_socket_conn(8000, 1);
-	server_loop(ssc);
+	init_server_socket_conn(8000, 1);
+	server_loop();
 
-	close_server_socket_conn(ssc);
+	close_server_socket_conn();
 	destroy_endpoints();
 
 	return (0);
