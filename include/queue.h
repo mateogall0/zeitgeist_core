@@ -10,8 +10,7 @@ typedef struct thread_pool_s thread_pool_t;
 
 typedef struct job_s
 {
-	void (*func)(int32_t client_fd, char *buffer);
-	char *data;
+	void (*func)(int32_t client_fd);
 	int32_t client_fd;
 	struct job_s *next;
 	struct job_s *prev;
@@ -32,9 +31,9 @@ int32_t pall_queue();
 int32_t print_job(job_t *job);
 void free_job(job_t *job);
 
-job_t *create_job(void (*func)(int32_t client_fd, char *buffer), int32_t client_fd, char *data);
+job_t *create_job(void (*func)(int32_t client_fd), int32_t client_fd);
 
-
+extern int32_t epoll_fd;
 extern jobs_queue_t *jobs_queue;
 
 #endif

@@ -19,8 +19,20 @@ char *example_handler(request_t *r)
 }
 
 
+char *example_handler1(request_t *r)
+{
+	(void)r;
+	char *msg = calloc(20, sizeof(char));
+	if (!msg)
+		return (NULL);
+    strcpy(msg, "H3110 W0r1d");
+    return msg;
+}
+
+
 int main()
 {
+	setvbuf(stdout, NULL, _IONBF, 0);  // disables buffering for other threads
 	init_endpoints_list();
 	set_endpoint(GET, "/hello/world", example_handler);
 	pall_endpoints();
@@ -28,7 +40,7 @@ int main()
 	init_jobs_queue();
 	thread_pool_t *tp = init_thread_pool(4);
 
-	init_server_socket_conn(8000, 1);
+	init_server_socket_conn(8080, 8);
 	server_loop(tp);
 
 	close_server_socket_conn();

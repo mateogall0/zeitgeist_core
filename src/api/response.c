@@ -1,6 +1,8 @@
 #include "api/response.h"
 #include "api/endpoint.h"
+#include "api/socket.h"
 #include "str.h"
+#include "debug.h"
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/types.h>
@@ -8,6 +10,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
+#include <sys/epoll.h>
+#include <errno.h>
 
 
 request_t *_parse_request(char *buff)
@@ -74,12 +79,25 @@ request_t *_parse_request(char *buff)
 	return (req);
 }
 
-void respond(int32_t client_fd, char *buffer)
+void respond(int32_t client_fd)
 {
-	char *res;
-    request_t *req = _parse_request(buffer);
+	char *res, buffer[BUFFER_SIZE];
+    request_t *req;
 	methods m;
 	endpoint_t *e;
+	int32_t bytes;
+
+	bytes = recv(client_fd, buffer, BUFFER_SIZE - 1, 0);
+	if (bytes > 0)
+		buffer[bytes] = '\0';
+	else
+	{
+		close(client_fd);
+        epoll_ctl(epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
+        return;
+	}
+	req = _parse_request(buffer);
+
 	if (!req)
 		return;
 
@@ -92,10 +110,15 @@ void respond(int32_t client_fd, char *buffer)
 	if (!e)
 		return;
 	res = e->handler(req);
+	print_debug("%lu : response below\n", pthread_self());
+	print_debug("%lu : %s\n", pthread_self(), res);
+	print_debug("%lu : about to send response\n", pthread_self());
 	send(client_fd, res, strlen(res), 0);
+	print_debug("%lu : just sent response\n", pthread_self());
 	if (res)
 		free(res);
 	free_request(req);
+	print_debug("%lu : finished response process\n", pthread_self());
 }
 
 

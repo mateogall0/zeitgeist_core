@@ -85,7 +85,7 @@ void *worker_loop(void *arg)
         if (job)
 		{
             /* printf("Thread %lu processing job %d\n", pthread_self(), job->data); */
-            job->func(job->client_fd, job->data);
+            job->func(job->client_fd);
             free_job(job);
         }
     }

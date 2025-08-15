@@ -1,5 +1,6 @@
 #include "queue.h"
 #include "thread.h"
+#include "debug.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stddef.h>
@@ -60,6 +61,7 @@ job_t *pop_job()
 
 
 	jobs_queue->size -= 1;
+	print_debug("popped a job, queue size: %lu\n", jobs_queue->size);
 	return (tail);
 }
 
@@ -78,11 +80,9 @@ size_t push_job(job_t *job, thread_pool_t *pool)
 	jobs_queue->size += 1;
 	jobs_queue->head = job;
 
-	// Wake up a worker waiting for a job
-    pthread_mutex_lock(&pool->lock);  // lock the pool
-    pthread_cond_signal(&pool->cond); // wake one worker
-    pthread_mutex_unlock(&pool->lock);
+	pthread_cond_signal(&pool->cond);
 
+	print_debug("pushed a job, queue size: %lu\n", jobs_queue->size);
 	return (jobs_queue->size);
 }
 
@@ -107,16 +107,15 @@ int32_t print_job(job_t *job)
 {
 	return printf("Job:\n\tid : %p\n\tfn : %p\n", &job, &job->func);
 }
+
 void free_job(job_t *job)
 {
 	if (!job)
 		return;
-	if (job->data)
-		free(job->data);
 	free(job);
 }
 
-job_t *create_job(void (*func)(int32_t client_fd, char *buffer), int32_t client_fd, char *data)
+job_t *create_job(void (*func)(int32_t client_fd), int32_t client_fd)
 {
 	job_t *new_job;
 
@@ -130,7 +129,6 @@ job_t *create_job(void (*func)(int32_t client_fd, char *buffer), int32_t client_
 	new_job->func = func;
 	new_job->next = NULL;
 	new_job->prev = NULL;
-	new_job->data = strdup(data);
 	new_job->client_fd = client_fd;
 
 	return (new_job);

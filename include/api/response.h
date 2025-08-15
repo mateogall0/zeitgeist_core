@@ -12,7 +12,7 @@ typedef enum {
 
 
 request_t *_parse_request(char *buff);
-void respond(int32_t client_fd, char *buffer);
+void respond(int32_t client_fd);
 void free_request(request_t *req);
 int32_t print_request(request_t *req);
 
