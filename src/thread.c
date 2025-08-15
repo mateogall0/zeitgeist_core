@@ -63,31 +63,36 @@ void destroy_thread_pool(thread_pool_t *pool)
 void *worker_loop(void *arg)
 {
     thread_pool_t *pool = arg;
+    if (!pool)
+        return NULL;
 
-	if (!pool)
-		return (NULL);
-
-	for(;;)
-	{
+    for (;;) {
         pthread_mutex_lock(&pool->lock);
+
+        // Wait only if queue is empty
         while (pool->queue->size == 0 && !pool->stop)
             pthread_cond_wait(&pool->cond, &pool->lock);
 
-        if (pool->stop)
-		{
+        if (pool->stop) {
             pthread_mutex_unlock(&pool->lock);
             break;
         }
 
-        job_t *job = pop_job(pool->queue);
-        pthread_mutex_unlock(&pool->lock);
+        // Process all available jobs without unlocking
+        while (pool->queue->size > 0) {
+            job_t *job = pop_job(pool->queue);
+            pthread_mutex_unlock(&pool->lock); // unlock while processing
 
-        if (job)
-		{
-            /* printf("Thread %lu processing job %d\n", pthread_self(), job->data); */
-            job->func(job->client_fd);
-            free_job(job);
+            if (job) {
+                job->func(job->client_fd);
+                free_job(job);
+            }
+
+            pthread_mutex_lock(&pool->lock); // lock again for next job
         }
+
+        pthread_mutex_unlock(&pool->lock);
     }
-	return (NULL);
+
+    return NULL;
 }
