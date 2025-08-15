@@ -40,7 +40,7 @@ int main()
 	init_jobs_queue();
 	thread_pool_t *tp = init_thread_pool(4);
 
-	init_server_socket_conn(8080, 8);
+	init_server_socket_conn((uint32_t)arc4random() % 50000, 4);
 	server_loop(tp);
 
 	close_server_socket_conn();

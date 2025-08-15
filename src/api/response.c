@@ -87,6 +87,7 @@ void respond(int32_t client_fd)
 	endpoint_t *e;
 	int32_t bytes;
 
+	print_debug("Reached Respond\n");
 	bytes = recv(client_fd, buffer, BUFFER_SIZE - 1, 0);
 	if (bytes > 0)
 		buffer[bytes] = '\0';
@@ -96,6 +97,7 @@ void respond(int32_t client_fd)
         epoll_ctl(epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
         return;
 	}
+	print_debug("received buffer in response: \n%s\n", buffer);
 	req = _parse_request(buffer);
 
 	if (!req)

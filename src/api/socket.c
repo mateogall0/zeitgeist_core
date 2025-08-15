@@ -1,6 +1,7 @@
 #include "api/socket.h"
 #include "api/response.h"
 #include "queue.h"
+#include "debug.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -87,17 +88,13 @@ void server_loop(thread_pool_t *pool)
     signal(SIGPIPE, SIG_IGN);
 
     epoll_fd = epoll_create1(0);
-    if (epoll_fd < 0)
-    {
-        perror("epoll_create1 failed");
-        return;
-    }
+    if (epoll_fd < 0) { perror("epoll_create1 failed"); return; }
 
     if (_set_nonblocking(ssc->server) < 0)
         perror("Failed to set server non-blocking");
 
     struct epoll_event ev = {0};
-    ev.events = EPOLLIN;
+    ev.events = EPOLLIN | EPOLLET; // edge-triggered
     ev.data.fd = ssc->server;
     if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, ssc->server, &ev) < 0)
     {
@@ -113,8 +110,7 @@ void server_loop(thread_pool_t *pool)
         int32_t n = epoll_wait(epoll_fd, events, MAX_EVENTS, TIMEOUT);
         if (n < 0)
         {
-            if (errno == EINTR)
-                continue;
+            if (errno == EINTR) continue;
             perror("epoll_wait failed");
             break;
         }
@@ -124,45 +120,31 @@ void server_loop(thread_pool_t *pool)
             int32_t fd = events[i].data.fd;
             uint32_t evs = events[i].events;
 
-            // Accept new clients
+            // New connection
             if (fd == ssc->server)
             {
                 for (;;)
                 {
-                    struct sockaddr_in client_addr = {0};
+                    struct sockaddr_in client_addr;
                     socklen_t client_len = sizeof(client_addr);
-
                     int32_t client_fd = accept(ssc->server, (struct sockaddr*)&client_addr, &client_len);
                     if (client_fd < 0)
                     {
-                        if (errno == EAGAIN || errno == EWOULDBLOCK)
-                            break;
-                        if (errno == EINTR || errno == ECONNABORTED)
-                            continue;
-                        if (errno == EMFILE || errno == ENFILE)
-                        {
-                            perror("accept fd limit");
-                            break;
-                        }
+                        if (errno == EAGAIN || errno == EWOULDBLOCK) break;
+                        if (errno == EINTR || errno == ECONNABORTED) continue;
                         perror("accept failed");
                         break;
                     }
 
-                    if (_set_nonblocking(client_fd) < 0)
+                    if (_set_nonblocking(client_fd) < 0 ||
+                        fcntl(client_fd, F_SETFD, FD_CLOEXEC) < 0)
                     {
-                        perror("fcntl O_NONBLOCK");
-                        close(client_fd);
-                        continue;
-                    }
-                    if (fcntl(client_fd, F_SETFD, FD_CLOEXEC) < 0)
-                    {
-                        perror("fcntl FD_CLOEXEC");
                         close(client_fd);
                         continue;
                     }
 
                     struct epoll_event client_ev = {0};
-                    client_ev.events = EPOLLIN;
+                    client_ev.events = EPOLLIN | EPOLLET | EPOLLRDHUP;
                     client_ev.data.fd = client_fd;
                     if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, client_fd, &client_ev) < 0)
                     {
@@ -172,44 +154,29 @@ void server_loop(thread_pool_t *pool)
                     }
 
                     if (ssc->verbose)
-                    {
                         printf("New client connected: fd=%d\n", client_fd);
-                    }
                 }
                 continue;
             }
 
-            // Handle client errors/hangups
-            if (evs & (EPOLLERR | EPOLLHUP))
+            // Client closed / error
+            if (evs & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
             {
                 epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, NULL);
                 close(fd);
                 if (ssc->verbose)
-                    printf("Client error/hangup: fd=%d\n", fd);
+                    printf("Client disconnected: fd=%d\n", fd);
                 continue;
             }
-
-            if (fd < 0)
-                continue;
-
-            char tmp;
-            ssize_t n = recv(fd, &tmp, 1, MSG_PEEK | MSG_DONTWAIT);
-            if (n > 0)
-            {
-                job_t *job = create_job(respond, fd);
-                if (job)
-                    push_job(job, pool);
-            }
-            else if (n == 0)
-            {
-                // client closed
-                epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, NULL);
-                close(fd);
-            }
+			// push a job only once per available data
+			job_t *job = create_job(respond, fd);
+			if (job)
+				push_job(job, pool);
         }
     }
 
     close(epoll_fd);
+    epoll_fd = -1;
 }
 
 void close_server_socket_conn()
