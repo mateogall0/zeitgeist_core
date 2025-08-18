@@ -1,7 +1,7 @@
-#include "api/response.h"
-#include "api/endpoint.h"
-#include "api/socket.h"
-#include "str.h"
+#include "server/api/response.h"
+#include "server/api/endpoint.h"
+#include "server/api/socket.h"
+#include "server/str.h"
 #include "debug.h"
 #include <netinet/in.h>
 #include <arpa/inet.h>

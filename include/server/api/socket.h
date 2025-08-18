@@ -19,7 +19,7 @@
 #define TIMEOUT 1000
 #endif
 
-#include "thread.h"
+#include "server/thread.h"
 
 #include <arpa/inet.h>
 #include <stdint.h>

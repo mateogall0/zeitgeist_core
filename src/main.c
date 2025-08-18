@@ -1,7 +1,4 @@
-#include "thread.h"
-#include "queue.h"
-#include "api/socket.h"
-#include "api/endpoint.h"
+#include "zeitgeist_server.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>

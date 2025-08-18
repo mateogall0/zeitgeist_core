@@ -1,6 +1,6 @@
 #ifndef RESPONSE_H
 #define RESPONSE_H
-#include "api/endpoint.h"
+#include "server/api/endpoint.h"
 #include <stdint.h>
 
 

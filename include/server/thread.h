@@ -1,7 +1,7 @@
 #ifndef THREAD_H
 #define THREAD_H
 
-#include "queue.h"
+#include "server/queue.h"
 #include <pthread.h>
 #include <stdint.h>
 

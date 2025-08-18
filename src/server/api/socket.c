@@ -1,6 +1,6 @@
-#include "api/socket.h"
-#include "api/response.h"
-#include "queue.h"
+#include "server/api/socket.h"
+#include "server/api/response.h"
+#include "server/queue.h"
 #include "debug.h"
 #include <stdio.h>
 #include <stdlib.h>

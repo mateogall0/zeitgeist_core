@@ -1,5 +1,5 @@
-#include "queue.h"
-#include "thread.h"
+#include "server/queue.h"
+#include "server/thread.h"
 #include "debug.h"
 #include <stdint.h>
 #include <stdio.h>
