@@ -1,4 +1,5 @@
 #include "zeitgeist_server.h"
+#include "zeitgeist_client.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -29,21 +30,28 @@ char *example_handler1(request_t *r)
 
 int main()
 {
-	setvbuf(stdout, NULL, _IONBF, 0);  // disables buffering for other threads
-	init_endpoints_list();
-	set_endpoint(GET, "/hello/world", example_handler);
-	pall_endpoints();
 
-	init_jobs_queue();
-	thread_pool_t *tp = init_thread_pool(4);
+	/* setvbuf(stdout, NULL, _IONBF, 0);  // disables buffering for other threads */
+	/* init_endpoints_list(); */
+	/* set_endpoint(GET, "/hello/world", example_handler); */
+	/* pall_endpoints(); */
 
-	init_server_socket_conn((uint32_t)arc4random() % 50000, 4);
-	server_loop(tp);
+	/* init_jobs_queue(); */
+	/* thread_pool_t *tp = init_thread_pool(4); */
 
-	close_server_socket_conn();
-	destroy_endpoints();
-	destroy_thread_pool(tp);
-	delete_jobs_queue();
+	/* init_server_socket_conn((uint32_t)arc4random() % 50000, 4); */
+	/* server_loop(tp); */
+
+	/* close_server_socket_conn(); */
+	/* destroy_endpoints(); */
+	/* destroy_thread_pool(tp); */
+	/* delete_jobs_queue(); */
+
+
+	init_client_payload_queue(5);
+	push_client_payload("Hello\n", 6);
+	pall_client_received_payload();
+	destroy_client_payload_queue();
 
 	return (0);
 }
