@@ -1,22 +1,28 @@
 CC := gcc
-CFLAGS := -Iinclude -Wall -Wextra -g -DDEBUG
+CFLAGS := -Iinclude -Itests -Wall -Wextra
 
 SRC_DIR := src
+TESTS_DIR := tests
 BUILD_DIR := build
 BIN_DIR := bin
-TARGET := protocol
+TEST_TARGET := protocol_tests
 
 SRC := $(shell find $(SRC_DIR) -name '*.c')
 OBJ := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRC))
 
-.PHONY: all clean run
+TEST_SRC := $(shell find $(TESTS_DIR) -name '*.c')
+TEST_OBJ := $(patsubst $(TESTS_DIR)/%.c,$(BUILD_DIR)/tests/%.o,$(TEST_SRC))
 
-all: $(BIN_DIR)/$(TARGET)
+.PHONY: clean tests run-tests
 
-$(BIN_DIR)/$(TARGET): $(OBJ) | $(BIN_DIR)
+$(BIN_DIR)/$(TEST_TARGET): $(OBJ) $(TEST_OBJ) | $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/tests/%.o: $(TESTS_DIR)/%.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
@@ -26,5 +32,7 @@ $(BIN_DIR):
 clean:
 	rm -rf $(BUILD_DIR) $(BIN_DIR)
 
-run: all
-	./$(BIN_DIR)/$(TARGET)
+tests: $(BIN_DIR)/$(TEST_TARGET)
+
+run-tests: tests
+	./$(BIN_DIR)/$(TEST_TARGET)
