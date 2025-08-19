@@ -1,0 +1,34 @@
+# Workflow: Runs normal tests and Valgrind memory checks
+# Triggered on push or pull request to main
+
+name: Tests
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: make
+      run: make tests
+    - name: run tests
+      run: bin/protocol_tests
+
+  valgrind:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - name: install valgrind
+        run: sudo apt-get update && sudo apt-get install -y valgrind
+      - name: make
+        run: make tests
+      - name: run tests with valgrind
+        run: valgrind --leak-check=full --error-exitcode=1 ./bin/protocol_tests
