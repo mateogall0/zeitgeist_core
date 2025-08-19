@@ -33,7 +33,11 @@
  * the `ASSERT_EQ` macro will exit on failure with status code
  * `EXIT`
  */
-int test_queue_creation();
 
+/* Client queue */
+int8_t test_client_queue_creation();
+int8_t test_client_queue_capacity();
+int8_t test_client_queue_pop();
+int8_t test_client_queue_pop_all();
 
 #endif
