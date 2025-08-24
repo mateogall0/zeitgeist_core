@@ -90,6 +90,7 @@ int8_t test_client_queue_pop_all()
 		received_payload_t *rp = pop_client_payload();
 		ASSERT(rp);
 		ASSERT(strcmp(rp->data, data[i]) == 0);
+		free_received_payload(rp);
 	}
 
 	destroy_client_payload_queue();

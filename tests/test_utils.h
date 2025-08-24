@@ -1,3 +1,4 @@
+
 #ifndef ZTEST_UTILS_H
 #define ZTEST_UTILS_H
 
