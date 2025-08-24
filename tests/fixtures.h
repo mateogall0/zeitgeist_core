@@ -6,7 +6,7 @@
 #define SETUP_CLIENT_QUEUE () \
 	init_client_payload_queue(128)
 #define TEARDOWN_CLIENT_QUEUE_ () \
-	destroy_client_payload_queue();
+	destroy_client_payload_queue()
 
 
 

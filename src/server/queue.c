@@ -36,6 +36,7 @@ void delete_jobs_queue()
 		free_job(current_job);
 	}
 	free(jobs_queue);
+	jobs_queue = NULL;
 }
 
 job_t *pop_job()

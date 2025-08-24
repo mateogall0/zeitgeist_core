@@ -12,7 +12,8 @@
 // Assert that a condition is true. On failure, print the condition and exit.
 #define ASSERT(cond) do { \
     if (!(cond)) { \
-        fprintf(stderr, _COLOR_RED "\nAssertion failed in %s: %s\n" _COLOR_RESET, __func__, #cond); \
+        fprintf(stderr, _COLOR_RED "\nAssertion failed in %s (%s:%d): %s\n" _COLOR_RESET, \
+                __func__, __FILE__, __LINE__, #cond); \
         exit(EXIT_FAILURE); \
     } \
 } while (0)
@@ -40,5 +41,8 @@ int8_t test_client_queue_creation();
 int8_t test_client_queue_capacity();
 int8_t test_client_queue_pop();
 int8_t test_client_queue_pop_all();
+
+/* Server queue */
+int8_t test_server_queue_creation();
 
 #endif
