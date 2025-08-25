@@ -1,5 +1,6 @@
 CC := gcc
-CFLAGS := -Iinclude -Itests -Wall -Wextra
+CFLAGS := -Iinclude -Wall -Wextra       # general flags
+TEST_CFLAGS := $(CFLAGS) -Itests -DTEST_BUILD -g  # extra flags for tests
 
 SRC_DIR := src
 TESTS_DIR := tests
@@ -15,17 +16,21 @@ TEST_OBJ := $(patsubst $(TESTS_DIR)/%.c,$(BUILD_DIR)/tests/%.o,$(TEST_SRC))
 
 .PHONY: clean tests run-tests
 
+# Main test binary
 $(BIN_DIR)/$(TEST_TARGET): $(OBJ) $(TEST_OBJ) | $(BIN_DIR)
-	$(CC) $(CFLAGS) $^ -o $@
+	$(CC) $(TEST_CFLAGS) $^ -o $@
 
+# Compile source files
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
+# Compile test files
 $(BUILD_DIR)/tests/%.o: $(TESTS_DIR)/%.c
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(TEST_CFLAGS) -c $< -o $@
 
+# Ensure bin folder exists
 $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
 

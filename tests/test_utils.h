@@ -18,13 +18,13 @@
 } while (0)
 
 // Run a test function, print green dot on success, red E and exit on failure
-#define RUN_TEST(fn) do { \
-    if (fn() == 0) { \
+#define RUN_TEST(res) do { \
+    if (res == 0) { \
         printf(_COLOR_GREEN "." _COLOR_RESET); \
         fflush(stdout); \
     } else { \
         printf(_COLOR_RED "E\n" _COLOR_RESET); \
-        return 1; \
+        return (1);			       \
     } \
 } while (0)
 
@@ -43,17 +43,17 @@ int8_t test_client_queue_pop_all();
 
 /* Server queue */
 int8_t test_server_queue_creation();
-int8_t test_server_queue_push_pop_single_threaded();
-
+int8_t _test_server_queue_push_pop__threaded(size_t thread_pool_size);
 
 /* All tests to be run go here */
 #define TESTS \
-	RUN_TEST(test_client_queue_creation); \
-	RUN_TEST(test_client_queue_capacity); \
-	RUN_TEST(test_client_queue_pop); \
-	RUN_TEST(test_client_queue_pop_all); \
-	RUN_TEST(test_server_queue_creation); \
-	RUN_TEST(test_server_queue_push_pop_single_threaded); \
+	RUN_TEST(test_client_queue_creation()); \
+	RUN_TEST(test_client_queue_capacity()); \
+	RUN_TEST(test_client_queue_pop()); \
+	RUN_TEST(test_client_queue_pop_all()); \
+	RUN_TEST(test_server_queue_creation()); \
+	for (int32_t i = 1; i <= 4; i *= 2) \
+		RUN_TEST(_test_server_queue_push_pop__threaded(i)); \
 
 
 #endif

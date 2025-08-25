@@ -24,9 +24,9 @@ void _process(int32_t client_fd) {
 	(void)client_fd;
 }
 
-int8_t test_server_queue_push_pop_single_threaded() {
+int8_t _test_server_queue_push_pop__threaded(size_t thread_pool_size) {
 	init_jobs_queue();
-	thread_pool_t *tp = init_thread_pool(1);
+	thread_pool_t *tp = init_thread_pool(thread_pool_size);
 
 	for (int32_t i = 0; i < 50; ++i) {
 		job_t *j = create_job(_process, i);
@@ -39,7 +39,6 @@ int8_t test_server_queue_push_pop_single_threaded() {
 		pthread_cond_wait(&tp->cond_empty, &tp->lock);
 	pthread_mutex_unlock(&tp->lock);
 
-	delete_jobs_queue();
 	destroy_thread_pool(tp);
 	return (0);
 }
