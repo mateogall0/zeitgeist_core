@@ -34,8 +34,10 @@ int8_t test_server_queue_push_pop_single_threaded() {
 		ASSERT(jobs_queue->size = i + 1);
 	}
 
-	while(jobs_queue->size > 0);
-
+	pthread_mutex_lock(&tp->lock);
+	while (tp->queue->size > 0 || tp->active_workers > 0)
+		pthread_cond_wait(&tp->cond_empty, &tp->lock);
+	pthread_mutex_unlock(&tp->lock);
 
 	delete_jobs_queue();
 	destroy_thread_pool(tp);
