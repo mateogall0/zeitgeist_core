@@ -5,13 +5,12 @@
 #include <pthread.h>
 #include <stdint.h>
 
-typedef struct thread_pool_s
-{
-    pthread_t *threads;
+typedef struct thread_pool_s{
+	pthread_t *threads;
 	size_t size;
 	jobs_queue_t *queue;
 	pthread_mutex_t lock;
-    pthread_cond_t cond;
+	pthread_cond_t cond;
 	int32_t stop;
 } thread_pool_t;
 

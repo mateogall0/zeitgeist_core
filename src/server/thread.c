@@ -9,8 +9,7 @@
 #include <time.h>
 
 
-thread_pool_t *init_thread_pool(size_t size)
-{
+thread_pool_t *init_thread_pool(size_t size) {
 	thread_pool_t *new_pool = (thread_pool_t *)malloc(sizeof(thread_pool_t));
 	uint32_t i;
 
@@ -19,14 +18,13 @@ thread_pool_t *init_thread_pool(size_t size)
 
 	new_pool->threads = (pthread_t *)calloc(size, sizeof(pthread_t));
 
-	if (!new_pool->threads)
-	{
+	if (!new_pool->threads) {
 		free(new_pool);
 		return (NULL);
 	}
 
 	pthread_mutex_init(&new_pool->lock, NULL);
-    pthread_cond_init(&new_pool->cond, NULL);
+	pthread_cond_init(&new_pool->cond, NULL);
 
 	new_pool->size = size;
 	new_pool->stop = 0;
@@ -38,8 +36,7 @@ thread_pool_t *init_thread_pool(size_t size)
 	return (new_pool);
 }
 
-void destroy_thread_pool(thread_pool_t *pool)
-{
+void destroy_thread_pool(thread_pool_t *pool) {
     if (!pool)
         return;
 
@@ -48,8 +45,7 @@ void destroy_thread_pool(thread_pool_t *pool)
     pthread_cond_broadcast(&pool->cond); // wake all threads
     pthread_mutex_unlock(&pool->lock);
 
-    for (size_t i = 0; i < pool->size; i++)
-	{
+    for (size_t i = 0; i < pool->size; i++) {
         pthread_join(pool->threads[i], NULL);
     }
 
@@ -60,8 +56,7 @@ void destroy_thread_pool(thread_pool_t *pool)
     free(pool);
 }
 
-void *worker_loop(void *arg)
-{
+void *worker_loop(void *arg) {
     thread_pool_t *pool = arg;
     if (!pool)
         return NULL;

@@ -1,5 +1,6 @@
 #include "test_utils.h"
 #include "server/queue.h"
+#include "server/thread.h"
 
 
 int8_t test_server_queue_creation() {
@@ -14,5 +15,29 @@ int8_t test_server_queue_creation() {
 	delete_jobs_queue();
 	ASSERT(!jobs_queue);
 
+	return (0);
+}
+
+
+
+void _process(int32_t client_fd) {
+	(void)client_fd;
+}
+
+int8_t test_server_queue_push_pop_single_threaded() {
+	init_jobs_queue();
+	thread_pool_t *tp = init_thread_pool(1);
+
+	for (int32_t i = 0; i < 50; ++i) {
+		job_t *j = create_job(_process, i);
+		push_job(j, tp);
+		ASSERT(jobs_queue->size = i + 1);
+	}
+
+	while(jobs_queue->size > 0);
+
+
+	delete_jobs_queue();
+	destroy_thread_pool(tp);
 	return (0);
 }

@@ -1,4 +1,3 @@
-
 #ifndef ZTEST_UTILS_H
 #define ZTEST_UTILS_H
 
@@ -44,5 +43,17 @@ int8_t test_client_queue_pop_all();
 
 /* Server queue */
 int8_t test_server_queue_creation();
+int8_t test_server_queue_push_pop_single_threaded();
+
+
+/* All tests to be run go here */
+#define TESTS \
+	RUN_TEST(test_client_queue_creation); \
+	RUN_TEST(test_client_queue_capacity); \
+	RUN_TEST(test_client_queue_pop); \
+	RUN_TEST(test_client_queue_pop_all); \
+	RUN_TEST(test_server_queue_creation); \
+	RUN_TEST(test_server_queue_push_pop_single_threaded); \
+
 
 #endif
