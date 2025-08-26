@@ -23,12 +23,13 @@
 
 #include <arpa/inet.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 
 typedef struct {
 	int32_t server;
 	socklen_t client_addr_len;
-	uint8_t verbose;
+	bool verbose;
 	uint32_t port;
 	struct sockaddr_in client_addr;
 } server_socket_conn_t;
@@ -36,7 +37,7 @@ typedef struct {
 
 extern server_socket_conn_t *ssc;
 
-void init_server_socket_conn(uint32_t port, uint8_t verbose);
+void init_server_socket_conn(uint32_t port, bool verbose);
 void server_loop(thread_pool_t *pool);
 void close_server_socket_conn();
 

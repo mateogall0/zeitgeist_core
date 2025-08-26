@@ -12,6 +12,7 @@
 #include <fcntl.h>
 #include <sys/epoll.h>
 #include <errno.h>
+#include <stdbool.h>
 
 
 volatile sig_atomic_t stop_loop = 0;
@@ -19,7 +20,7 @@ server_socket_conn_t *ssc = NULL;
 int32_t epoll_fd = -1;
 
 
-void init_server_socket_conn(uint32_t port, uint8_t verbose)
+void init_server_socket_conn(uint32_t port, bool verbose)
 {
     if (ssc)
         return;

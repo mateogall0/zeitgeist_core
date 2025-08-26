@@ -18,8 +18,6 @@ int8_t test_server_queue_creation() {
 	return (0);
 }
 
-
-
 #define _TEST_JOBS_SIZE 50
 
 int32_t _jobs_result[_TEST_JOBS_SIZE];
