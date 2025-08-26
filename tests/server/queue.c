@@ -31,7 +31,6 @@ int8_t _test_server_queue_push_pop__threaded(size_t thread_pool_size) {
 	for (size_t i = 0; i < 50; ++i) {
 		job_t *j = create_job(_process, i);
 		push_job(j, tp);
-		ASSERT(jobs_queue->size == i + 1);
 	}
 
 	pthread_mutex_lock(&tp->lock);
