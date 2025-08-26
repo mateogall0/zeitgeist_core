@@ -73,9 +73,9 @@ int32_t pall_endpoints()
 
 void destroy_endpoints()
 {
-	endpoint_t *current;
 	if (!endpoints)
 		return;
+	endpoint_t *current;
 	while(endpoints->head)
 	{
 		current = endpoints->head;
@@ -100,6 +100,7 @@ endpoint_t *find_endpoint(methods method, char *target)
 	{
 		if (current->method == method && strcmp(target, current->target) == 0)
 			return (current);
+		current = current->next;
 	}
 	return (NULL);
 }

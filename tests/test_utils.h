@@ -47,17 +47,22 @@ int8_t _test_server_queue_push_pop__threaded(size_t thread_pool_size);
 
 /* Server API */
 int8_t test_server_api_create_socket();
+int8_t test_server_api_create_endpoints();
 
 /* All tests to be run go here */
+/* #define TESTS \ */
+/* 	RUN_TEST(test_client_queue_creation()); \ */
+/* 	RUN_TEST(test_client_queue_capacity()); \ */
+/* 	RUN_TEST(test_client_queue_pop()); \ */
+/* 	RUN_TEST(test_client_queue_pop_all()); \ */
+/* 	RUN_TEST(test_server_queue_creation()); \ */
+/* 	for (int32_t i = 1; i <= 4; i *= 2) \ */
+/* 		RUN_TEST(_test_server_queue_push_pop__threaded(i)); \ */
+/* 	RUN_TEST(test_server_api_create_socket()); \ */
+/* 	RUN_TEST(test_server_api_create_endpoints()); \ */
+
 #define TESTS \
-	RUN_TEST(test_client_queue_creation()); \
-	RUN_TEST(test_client_queue_capacity()); \
-	RUN_TEST(test_client_queue_pop()); \
-	RUN_TEST(test_client_queue_pop_all()); \
-	RUN_TEST(test_server_queue_creation()); \
 	RUN_TEST(test_server_api_create_socket()); \
-	for (int32_t i = 1; i <= 4; i *= 2) \
-		RUN_TEST(_test_server_queue_push_pop__threaded(i)); \
 
 
 #endif

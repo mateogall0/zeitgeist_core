@@ -49,6 +49,11 @@ void destroy_thread_pool(thread_pool_t *pool) {
 	pthread_cond_broadcast(&pool->cond); // wake all threads
 	pthread_mutex_unlock(&pool->lock);
 
+	while (pool->active_workers > 0 || pool->queue->size > 0)
+		pthread_cond_wait(&pool->cond_empty, &pool->lock);
+
+	pthread_mutex_unlock(&pool->lock);
+
 	// wait for all threads to exit
 	for (size_t i = 0; i < pool->size; i++)
 		pthread_join(pool->threads[i], NULL);
@@ -65,46 +70,42 @@ void destroy_thread_pool(thread_pool_t *pool) {
 
 	free(pool);
 }
-
 void *worker_loop(void *arg) {
-	thread_pool_t *pool = arg;
-	if (!pool)
-		return NULL;
+    thread_pool_t *pool = arg;
+    if (!pool) return NULL;
 
-	for (;;) {
-		pthread_mutex_lock(&pool->lock);
+    while (1) {
+        pthread_mutex_lock(&pool->lock);
 
-		// wait if queue empty and not stopping
-		while (pool->queue->size == 0 && !pool->stop)
-			pthread_cond_wait(&pool->cond, &pool->lock);
+        // wait while queue empty AND not stopping
+        while (pool->queue->size == 0 && !pool->stop)
+            pthread_cond_wait(&pool->cond, &pool->lock);
 
-		// stop immediately if flagged
-		if (pool->stop) {
-			pthread_mutex_unlock(&pool->lock);
-			break;
-		}
+        // exit immediately if stop flag set
+        if (pool->stop && pool->queue->size == 0) {
+            pthread_mutex_unlock(&pool->lock);
+            break;
+        }
 
-		// jobs loop
-		while (pool->queue->size > 0) {
-			job_t *job = pop_job(pool->queue);
-			if (!job)
-			    break;
+        // pop a job if available
+        job_t *job = pop_job(pool->queue);
+        if (job)
+            pool->active_workers++;
 
-			pool->active_workers++;
-			pthread_mutex_unlock(&pool->lock);
+        pthread_mutex_unlock(&pool->lock);
 
-			job->func(job->client_fd);
-			free_job(job);
+        if (job) {
+            job->func(job->client_fd);
+            free_job(job);
 
-			pthread_mutex_lock(&pool->lock);
-			pool->active_workers--;
+            pthread_mutex_lock(&pool->lock);
+            pool->active_workers--;
+            // notify destroy or any waiters that queue is empty
+            if (pool->queue->size == 0 && pool->active_workers == 0)
+                pthread_cond_signal(&pool->cond_empty);
+            pthread_mutex_unlock(&pool->lock);
+        }
+    }
 
-			if (pool->queue->size == 0 && pool->active_workers == 0)
-			    pthread_cond_signal(&pool->cond_empty);
-		}
-
-		pthread_mutex_unlock(&pool->lock);
-	}
-
-	return NULL;
+    return NULL;
 }
