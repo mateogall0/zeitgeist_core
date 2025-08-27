@@ -49,6 +49,7 @@ int8_t test_server_api_create_endpoints() {
 		char t[] = "/example0";
 		t[8] += (int8_t)m;
 		endpoint_t *e = set_endpoint(m, t, _process_endpoint_example);
+		ASSERT(e);
 		if (m == GET)
 			ASSERT(endpoints->head == e);
 		ASSERT(strcmp(e->target, t) == 0);
@@ -57,6 +58,42 @@ int8_t test_server_api_create_endpoints() {
 	SETUP_SERVER_SOCKET();
 
 	RUN_SERVER_SOCKET_LOOP();
+
+	DESTROY_SERVER_SOCKET();
+	destroy_endpoints();
+	return (0);
+}
+
+int8_t test_server_api_request_single_endpoint() {
+	init_endpoints_list();
+	SETUP_SERVER_SOCKET();
+
+	endpoint_t *e = set_endpoint(GET, "/example", _process_endpoint_example);
+	ASSERT(e);
+	RUN_SERVER_SOCKET_LOOP();
+
+	/* int sock = socket(AF_INET, SOCK_STREAM, 0); */
+
+	/* struct sockaddr_in addr = {0}; */
+	/* addr.sin_family = AF_INET; */
+	/* addr.sin_port = htons(SERVER_PORT); */
+	/* addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK); // 127.0.0.1 */
+
+	/* if (connect(sock, (struct sockaddr*)&addr, sizeof(addr)) < 0) { */
+	/* 	perror("connect"); */
+	/* 	return 1; */
+	/* } */
+
+	/* char *msg = "GET /example"; */
+	/* send(sock, msg, strlen(msg), 0); */
+
+	/* char buf[1024]; */
+	/* int n = recv(sock, buf, sizeof(buf)-1, 0); */
+	/* buf[n] = '\0'; */
+	/* ASSERT(strcmp(buf, "response_example") == 0); */
+
+
+	/* close(sock); */
 
 	DESTROY_SERVER_SOCKET();
 	destroy_endpoints();
