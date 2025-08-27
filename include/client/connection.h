@@ -12,10 +12,10 @@
 
 typedef struct
 {
-	int32_t client;
-	struct sockaddr_in server_addr;
-	int8_t connected;
-	void(*process)(char *, size_t);
+    int32_t client;
+    struct sockaddr_in server_addr;
+    int8_t connected;
+    void(*process)(char *, size_t);
 } connection_t;
 
 connection_t *init_conn(void(*process)(char *, size_t));

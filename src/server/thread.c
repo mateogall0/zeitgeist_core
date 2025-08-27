@@ -10,66 +10,67 @@
 
 
 thread_pool_t *init_thread_pool(size_t size) {
-	thread_pool_t *new_pool = (thread_pool_t *)malloc(sizeof(thread_pool_t));
-	uint32_t i;
+    thread_pool_t *new_pool = (thread_pool_t *)malloc(sizeof(thread_pool_t));
+    uint32_t i;
 
-	if (!new_pool)
-		return (NULL);
+    if (!new_pool)
+        return (NULL);
 
-	new_pool->threads = (pthread_t *)calloc(size, sizeof(pthread_t));
+    new_pool->threads = (pthread_t *)calloc(size, sizeof(pthread_t));
 
-	if (!new_pool->threads) {
-		free(new_pool);
-		return (NULL);
-	}
+    if (!new_pool->threads) {
+        free(new_pool);
+        return (NULL);
+    }
 
-	pthread_mutex_init(&new_pool->lock, NULL);
-	pthread_cond_init(&new_pool->cond, NULL);
-	pthread_cond_init(&new_pool->cond_empty, NULL);
+    pthread_mutex_init(&new_pool->lock, NULL);
+    pthread_cond_init(&new_pool->cond, NULL);
+    pthread_cond_init(&new_pool->cond_empty, NULL);
 
 
-	new_pool->size = size;
-	new_pool->stop = 0;
-	new_pool->active_workers = 0;
+    new_pool->size = size;
+    new_pool->stop = 0;
+    new_pool->active_workers = 0;
 
-	new_pool->queue = jobs_queue;
-	for (i = 0; i < size; i++)
-		pthread_create(&new_pool->threads[i], NULL, worker_loop, new_pool);
+    new_pool->queue = jobs_queue;
+    for (i = 0; i < size; i++)
+        pthread_create(&new_pool->threads[i], NULL, worker_loop, new_pool);
 
-	return (new_pool);
+    return (new_pool);
 }
 
 void destroy_thread_pool(thread_pool_t *pool) {
-	if (!pool)
-		return;
+    if (!pool)
+        return;
 
-	// signal all workers to stop
-	pthread_mutex_lock(&pool->lock);
-	pool->stop = 1;
-	pthread_cond_broadcast(&pool->cond); // wake all threads
-	pthread_mutex_unlock(&pool->lock);
+    // signal all workers to stop
+    pthread_mutex_lock(&pool->lock);
+    pool->stop = 1;
+    pthread_cond_broadcast(&pool->cond); // wake all threads
+    pthread_mutex_unlock(&pool->lock);
 
-	while (pool->active_workers > 0 || pool->queue->size > 0)
-		pthread_cond_wait(&pool->cond_empty, &pool->lock);
+    while (pool->active_workers > 0 || pool->queue->size > 0)
+        pthread_cond_wait(&pool->cond_empty, &pool->lock);
 
-	pthread_mutex_unlock(&pool->lock);
+    pthread_mutex_unlock(&pool->lock);
 
-	// wait for all threads to exit
-	for (size_t i = 0; i < pool->size; i++)
-		pthread_join(pool->threads[i], NULL);
+    // wait for all threads to exit
+    for (size_t i = 0; i < pool->size; i++)
+        pthread_join(pool->threads[i], NULL);
 
-	// now it is safe to destroy mutexes and free memory
-	pthread_mutex_destroy(&pool->lock);
-	pthread_cond_destroy(&pool->cond);
-	pthread_cond_destroy(&pool->cond_empty);
+    // now it is safe to destroy mutexes and free memory
+    pthread_mutex_destroy(&pool->lock);
+    pthread_cond_destroy(&pool->cond);
+    pthread_cond_destroy(&pool->cond_empty);
 
-	free(pool->threads);
+    free(pool->threads);
 
-	// free the queue only **after** workers exited
-	delete_jobs_queue(pool->queue);
+    // free the queue only **after** workers exited
+    delete_jobs_queue(pool->queue);
 
-	free(pool);
+    free(pool);
 }
+
 void *worker_loop(void *arg) {
     thread_pool_t *pool = arg;
     if (!pool) return NULL;

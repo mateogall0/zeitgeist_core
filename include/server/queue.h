@@ -10,17 +10,17 @@ typedef struct thread_pool_s thread_pool_t;
 
 typedef struct job_s
 {
-	void (*func)(int32_t client_fd);
-	int32_t client_fd;
-	struct job_s *next;
-	struct job_s *prev;
+    void (*func)(int32_t client_fd);
+    int32_t client_fd;
+    struct job_s *next;
+    struct job_s *prev;
 } job_t;
 
 typedef struct
 {
-	job_t *head;
-	job_t *tail;
-	size_t size;
+    job_t *head;
+    job_t *tail;
+    size_t size;
 } jobs_queue_t;
 
 jobs_queue_t *init_jobs_queue();

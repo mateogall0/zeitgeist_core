@@ -5,32 +5,32 @@
 #include <stddef.h>
 
 typedef enum {
-	GET,
-	PUT,
-	DELETE,
-	POST,
-	METHODS_COUNT
+    GET,
+    PUT,
+    DELETE,
+    POST,
+    METHODS_COUNT
 } methods;
 
 extern const char *methods_str[METHODS_COUNT];
 
 typedef struct {
-	char *content_type;
-	char *headers;
-	char *body;
-	char *method;
-	char *target;
+    char *content_type;
+    char *headers;
+    char *body;
+    char *method;
+    char *target;
 } request_t;
 
 typedef struct endpoint_s{
-	methods method;
-	char *target;
-	char *(*handler)(request_t *);
-	struct endpoint_s *next;
+    methods method;
+    char *target;
+    char *(*handler)(request_t *);
+    struct endpoint_s *next;
 } endpoint_t;
 
 typedef struct {
-	endpoint_t *head;
+    endpoint_t *head;
 } endpoint_list_t;
 
 extern endpoint_list_t *endpoints;

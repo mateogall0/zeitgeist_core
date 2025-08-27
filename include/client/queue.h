@@ -8,17 +8,17 @@
 
 typedef struct received_response_s
 {
-	struct received_response_s *next;
-	size_t len;
-	char *data;
+    struct received_response_s *next;
+    size_t len;
+    char *data;
 } received_payload_t;
 
 typedef struct
 {
-	received_payload_t *head;
-	received_payload_t *tail;
-	size_t capacity;
-	size_t size;
+    received_payload_t *head;
+    received_payload_t *tail;
+    size_t capacity;
+    size_t size;
 } received_payload_queue_t;
 
 

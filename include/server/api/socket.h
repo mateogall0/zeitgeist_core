@@ -27,11 +27,11 @@
 
 
 typedef struct {
-	int32_t server;
-	socklen_t client_addr_len;
-	bool verbose;
-	uint32_t port;
-	struct sockaddr_in client_addr;
+    int32_t server;
+    socklen_t client_addr_len;
+    bool verbose;
+    uint32_t port;
+    struct sockaddr_in client_addr;
 } server_socket_conn_t;
 
 

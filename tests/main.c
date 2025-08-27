@@ -3,8 +3,8 @@
 
 int main()
 {
-	TESTS;
+    TESTS;
 
-	printf("\nAll tests passed!\n");
-	return (0);
+    printf("\nAll tests passed!\n");
+    return (0);
 }

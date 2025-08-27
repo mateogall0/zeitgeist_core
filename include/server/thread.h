@@ -6,14 +6,14 @@
 #include <stdint.h>
 
 typedef struct thread_pool_s{
-	pthread_t *threads;
-	size_t size;
-	jobs_queue_t *queue;
-	pthread_mutex_t lock;
-	pthread_cond_t cond;
-	pthread_cond_t cond_empty;
-	int32_t stop;
-	uint32_t active_workers;
+    pthread_t *threads;
+    size_t size;
+    jobs_queue_t *queue;
+    pthread_mutex_t lock;
+    pthread_cond_t cond;
+    pthread_cond_t cond_empty;
+    int32_t stop;
+    uint32_t active_workers;
 } thread_pool_t;
 
 
