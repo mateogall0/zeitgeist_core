@@ -27,7 +27,6 @@ int8_t test_server_api_create_socket() {
 		exit(0);
 	}
 	else { // parent
-		sleep(1);
 		kill(pid, SIGINT);
 		waitpid(pid, NULL, 0);
 	}

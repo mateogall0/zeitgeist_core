@@ -42,6 +42,10 @@ void init_server_socket_conn(uint32_t port, bool verbose)
     server_addr.sin_addr.s_addr = INADDR_ANY;
     server_addr.sin_port = htons(port);
 
+	int opt = 1;
+	setsockopt(server, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+
+
     if (bind(server, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
         perror("Bind failed");
         close(server);
@@ -196,8 +200,8 @@ void close_server_socket_conn()
 		epoll_fd = -1;
 	}
 
+	shutdown(ssc->server, SHUT_RDWR);
 	close(ssc->server);
-	shutdown(ssc->server, 2);
 	if (ssc->verbose)
 		printf("Server socket closed: fd=%d\n", ssc->server);
 

@@ -34,6 +34,9 @@
 		delete_jobs_queue(); \
 		close_server_socket_conn(); \
 		exit(0); \
-	}
+	} \
+	kill(pid, SIGINT); \
+	waitpid(pid, NULL, 0); \
+
 
 #endif
