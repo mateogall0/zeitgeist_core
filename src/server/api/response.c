@@ -1,6 +1,7 @@
 #include "server/api/response.h"
 #include "server/api/endpoint.h"
 #include "server/api/socket.h"
+#include "server/api/errors.h"
 #include "server/str.h"
 #include "debug.h"
 #include <netinet/in.h>
@@ -102,8 +103,17 @@ void respond(int32_t client_fd) {
         return;
 
     e = find_endpoint(m, req->target);
-    if (!e)
+    if (!e) {
+        print_debug("%lu : sending 405\n", pthread_self());
+        char *(*h)(request_t *) = get_request_error_handler(405);
+        if (!h)
+            return;
+        char *msg = h(req);
+        print_debug("%lu : 405 to be sent:\n%s\n", pthread_self(), msg);
+        if (msg)
+            send(client_fd, msg, strlen(msg), 0);
         return;
+    }
     res = e->handler(req);
     print_debug("%lu : response below\n", pthread_self());
     print_debug("%lu : %s\n", pthread_self(), res);
@@ -115,7 +125,6 @@ void respond(int32_t client_fd) {
     free_request(req);
     print_debug("%lu : finished response process\n", pthread_self());
 }
-
 
 int32_t print_request(request_t *req) {
     if (!req)

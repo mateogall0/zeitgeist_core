@@ -2,6 +2,8 @@
 #include "fixtures.h"
 #include "server/api/socket.h"
 #include "server/api/endpoint.h"
+#include "server/api/response.h"
+#include "server/api/errors.h"
 #include <stdbool.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -63,38 +65,57 @@ int8_t test_server_api_create_endpoints() {
     return (0);
 }
 
-int8_t test_server_api_request_single_endpoint() {
-    init_endpoints_list();
-    SETUP_SERVER_SOCKET();
 
+char *_process_error_example_405(request_t *r) {
+    (void)r;
+    static char *msg = "405 Method not allowed";
+    return (msg);
+}
+
+int8_t test_server_api_request_single_endpoint() {
+    ASSERT(init_endpoints_list());
+    ASSERT(init_request_errors_list());
+    ASSERT(set_request_error(405, _process_error_example_405));
     endpoint_t *e = set_endpoint(GET, "/example", _process_endpoint_example);
     ASSERT(e);
+
+    SETUP_SERVER_SOCKET();
+
     RUN_SERVER_SOCKET_LOOP();
 
-    /* int sock = socket(AF_INET, SOCK_STREAM, 0); */
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
 
-    /* struct sockaddr_in addr = {0}; */
-    /* addr.sin_family = AF_INET; */
-    /* addr.sin_port = htons(SERVER_PORT); */
-    /* addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK); // 127.0.0.1 */
+    struct sockaddr_in addr = {0};
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(SERVER_PORT);
+    addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK); // 127.0.0.1
 
-    /* if (connect(sock, (struct sockaddr*)&addr, sizeof(addr)) < 0) { */
-    /*      perror("connect"); */
-    /*      return 1; */
-    /* } */
+    if (connect(sock, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
+         perror("connect");
+         return 1;
+    }
 
-    /* char *msg = "GET /example"; */
-    /* send(sock, msg, strlen(msg), 0); */
+    char *msg = "GET /example";
+    send(sock, msg, strlen(msg), 0);
 
-    /* char buf[1024]; */
-    /* int n = recv(sock, buf, sizeof(buf)-1, 0); */
-    /* buf[n] = '\0'; */
-    /* ASSERT(strcmp(buf, "response_example") == 0); */
+    char buf[1024];
+    int n = recv(sock, buf, sizeof(buf)-1, 0);
+    buf[n] = '\0';
+    ASSERT(strcmp(buf, "response_example") == 0);
+
+    msg = "POST /example";
+    if (send(sock, msg, strlen(msg), 0) < 0)
+        return (1);
+
+    n = recv(sock, buf, sizeof(buf)-1, 0);
+    buf[n] = '\0';
+    ASSERT(strcmp(buf, "405 Method not allowed") == 0);
 
 
-    /* close(sock); */
+    close(sock);
 
     DESTROY_SERVER_SOCKET();
     destroy_endpoints();
+    destroy_request_errors_list();
     return (0);
 }
