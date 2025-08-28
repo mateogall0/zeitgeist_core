@@ -43,6 +43,7 @@ void init_server_socket_conn(uint32_t port, bool verbose) {
 
     int opt = 1;
     setsockopt(server, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+    setsockopt(server, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt));
 
     if (bind(server, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
         perror("Bind failed");
@@ -68,12 +69,10 @@ void init_server_socket_conn(uint32_t port, bool verbose) {
         printf("Server now running at port %d\n", port);
 }
 
-
 void _handle_sigint(int sig) {
     (void)sig;
     stop_loop = 1;
 }
-
 
 int32_t _set_nonblocking(int32_t fd) {
     int32_t flags = fcntl(fd, F_GETFL, 0);
