@@ -20,7 +20,7 @@ request_errors_list_t *init_request_errors_list() {
     return (request_errors);
 }
 
-request_error_t *set_request_error(uint16_t status, char *(*handler)(request_t *)) {
+request_error_t *set_request_error(status_code_e status, char *(*handler)(request_t *)) {
     if (!request_errors || get_request_error_handler(status) || !handler)
         return (NULL);
 
@@ -36,7 +36,7 @@ request_error_t *set_request_error(uint16_t status, char *(*handler)(request_t *
     return (request_error);
 }
 
-char *(*get_request_error_handler(uint16_t status))(request_t *) {
+char *(*get_request_error_handler(status_code_e status))(request_t *) {
     if (!request_errors)
         return (NULL);
 

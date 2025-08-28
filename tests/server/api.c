@@ -4,6 +4,7 @@
 #include "server/api/endpoint.h"
 #include "server/api/response.h"
 #include "server/api/errors.h"
+#include "common/status.h"
 #include <stdbool.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -75,7 +76,8 @@ char *_process_error_example_405(request_t *r) {
 int8_t test_server_api_request_single_endpoint() {
     ASSERT(init_endpoints_list());
     ASSERT(init_request_errors_list());
-    ASSERT(set_request_error(405, _process_error_example_405));
+    ASSERT(set_request_error(RES_STATUS_METHOD_NOT_ALLOWED,
+                             _process_error_example_405));
     endpoint_t *e = set_endpoint(GET, "/example", _process_endpoint_example);
     ASSERT(e);
 
