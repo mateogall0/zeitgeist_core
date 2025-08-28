@@ -44,7 +44,6 @@ void init_server_socket_conn(uint32_t port, bool verbose) {
     int opt = 1;
     setsockopt(server, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
-
     if (bind(server, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
         perror("Bind failed");
         close(server);

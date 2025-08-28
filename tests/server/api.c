@@ -11,6 +11,7 @@
 #include <signal.h>
 #include <string.h>
 #include <sys/wait.h>
+#include <stdint.h>
 
 
 int8_t test_server_api_create_socket() {
@@ -115,6 +116,39 @@ int8_t test_server_api_request_single_endpoint() {
 
 
     close(sock);
+
+    DESTROY_SERVER_SOCKET();
+    destroy_endpoints();
+    destroy_request_errors_list();
+    return (0);
+}
+
+
+
+int8_t test_server_api_request_many_connections(uint32_t connections) {
+    SETUP_SERVER_SOCKET();
+    RUN_SERVER_SOCKET_LOOP();
+
+    int sockets[connections];
+
+    for (uint32_t i = 0; i < connections; ++i) {
+        int sock = socket(AF_INET, SOCK_STREAM, 0);
+        sockets[i] = sock;
+
+        struct sockaddr_in addr = {0};
+        addr.sin_family = AF_INET;
+        addr.sin_port = htons(SERVER_PORT);
+        addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK); // 127.0.0.1
+
+        if (connect(sock, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
+            perror("connect");
+            return 1;
+        }
+
+    }
+    for (uint32_t i = 0; i < connections; ++i) {
+        close(sockets[i]);
+    }
 
     DESTROY_SERVER_SOCKET();
     destroy_endpoints();

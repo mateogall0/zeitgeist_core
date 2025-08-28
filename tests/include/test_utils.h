@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
+
 
 #define _COLOR_RED     "\x1b[31m"
 #define _COLOR_GREEN   "\x1b[32m"
@@ -49,6 +51,7 @@ int8_t _test_server_queue_push_pop__threaded(size_t thread_pool_size);
 int8_t test_server_api_create_socket();
 int8_t test_server_api_create_endpoints();
 int8_t test_server_api_request_single_endpoint();
+int8_t test_server_api_request_many_connections(uint32_t connections);
 
 /* All tests to be run go here */
 #define TESTS                                                   \
@@ -62,6 +65,8 @@ int8_t test_server_api_request_single_endpoint();
     RUN_TEST(test_server_api_create_socket());                  \
     RUN_TEST(test_server_api_create_endpoints());               \
     RUN_TEST(test_server_api_request_single_endpoint());        \
-
+    for (uint32_t i = 16; i <= 512 ; i *= 2) {                  \
+        RUN_TEST(test_server_api_request_many_connections(i));  \
+    }                                                           \
 
 #endif
