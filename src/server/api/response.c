@@ -3,6 +3,7 @@
 #include "server/api/socket.h"
 #include "server/api/errors.h"
 #include "server/str.h"
+#include "common/status.h"
 #include "debug.h"
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -105,7 +106,7 @@ void respond(int32_t client_fd) {
     e = find_endpoint(m, req->target);
     if (!e) {
         print_debug("%lu : sending 405\n", pthread_self());
-        char *(*h)(request_t *) = get_request_error_handler(405);
+        char *(*h)(request_t *) = get_request_error_handler(RES_STATUS_METHOD_NOT_ALLOWED);
         if (!h)
             return;
         char *msg = h(req);

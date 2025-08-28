@@ -16,7 +16,6 @@ typedef struct {
     request_error_t *head;
 } request_errors_list_t;
 
-
 extern request_errors_list_t *request_errors;
 
 request_errors_list_t *init_request_errors_list();
