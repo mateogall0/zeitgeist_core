@@ -10,6 +10,8 @@
 #define _COLOR_GREEN   "\x1b[32m"
 #define _COLOR_RESET   "\x1b[0m"
 
+
+
 // Assert that a condition is true. On failure, print the condition and exit.
 #define ASSERT(cond) do {                                               \
         if (!(cond)) {                                                  \
@@ -20,14 +22,15 @@
     } while (0)
 
 // Run a test function, print green dot on success, red E and exit on failure
-#define RUN_TEST(res) do {                              \
-        if (res == 0) {                                 \
-            printf(_COLOR_GREEN "." _COLOR_RESET);      \
-            fflush(stdout);                             \
-        } else {                                        \
-            printf(_COLOR_RED "E\n" _COLOR_RESET);      \
-            return (1);                                 \
-        }                                               \
+#define RUN_TEST(fn) do {                                   \
+        int _res = fn;                                      \
+        printf("%04d || %-100s ", ++_test_counter, #fn);     \
+        if (_res == 0) {                                    \
+            printf(_COLOR_GREEN "[PASS]\n" _COLOR_RESET);   \
+        } else {                                            \
+            printf(_COLOR_RED "[FAIL]\n" _COLOR_RESET);     \
+            return (1);                                     \
+        }                                                   \
     } while (0)
 
 /**
