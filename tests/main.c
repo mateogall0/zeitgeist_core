@@ -5,6 +5,7 @@
 int main()
 {
     set_log_requests(false);
+
     TESTS;
 
     printf("\nAll tests passed!\n");

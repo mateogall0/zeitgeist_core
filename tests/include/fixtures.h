@@ -3,7 +3,7 @@
 
 #include "zeitgeist_client.h"
 
-#define SERVER_PORT 60132
+#define SERVER_PORT 4000
 
 #define SETUP_CLIENT_QUEUE()                    \
     init_client_payload_queue(128)

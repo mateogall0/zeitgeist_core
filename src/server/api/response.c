@@ -5,6 +5,7 @@
 #include "server/str.h"
 #include "common/status.h"
 #include "debug.h"
+#include "server/static.h"
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/types.h>
@@ -76,6 +77,27 @@ request_t *_parse_request(char *buff) {
     return (req);
 }
 
+
+size_t
+_send_response(int sockfd,
+               char *buf,
+               size_t size,
+               char *method,
+               char *target) {
+    if (!buf)
+        return (0);
+
+    if (get_log_requests()) {
+        printf("\033[36m%s\033[0m"
+               " %s\n",
+               method,
+               target);
+    }
+
+    return (send(sockfd, buf, size, 0));
+}
+
+
 void respond(int32_t client_fd) {
     char *res, buffer[BUFFER_SIZE];
     request_t *req;
@@ -111,15 +133,14 @@ void respond(int32_t client_fd) {
             return;
         char *msg = h(req);
         print_debug("%lu : 405 to be sent:\n%s\n", pthread_self(), msg);
-        if (msg)
-            send(client_fd, msg, strlen(msg), 0);
+        _send_response(client_fd, msg, strlen(msg), req->method, req->target);
         return;
     }
     res = e->handler(req);
     print_debug("%lu : response below\n", pthread_self());
     print_debug("%lu : %s\n", pthread_self(), res);
     print_debug("%lu : about to send response\n", pthread_self());
-    send(client_fd, res, strlen(res), 0);
+    _send_response(client_fd, res, strlen(res), req->method, req->target);
     print_debug("%lu : just sent response\n", pthread_self());
     if (res)
         free(res);
