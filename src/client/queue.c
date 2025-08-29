@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stddef.h>
-#include <string.h>
+#include "common/str.h"
 
 
 received_payload_queue_t *client_payload_queue = NULL;

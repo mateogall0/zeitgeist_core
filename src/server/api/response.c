@@ -2,7 +2,7 @@
 #include "server/api/endpoint.h"
 #include "server/api/socket.h"
 #include "server/api/errors.h"
-#include "server/str.h"
+#include "common/str.h"
 #include "common/status.h"
 #include "debug.h"
 #include "server/static.h"

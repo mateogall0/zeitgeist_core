@@ -1,5 +1,5 @@
 #include "server/api/endpoint.h"
-#include "server/str.h"
+#include "common/str.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>

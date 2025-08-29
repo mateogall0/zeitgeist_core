@@ -1,7 +1,8 @@
-#include "server/str.h"
+#include "common/str.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
+#include <stdlib.h>
 
 
 int8_t string_in_array(const char *str, const char *arr[], size_t size) {
