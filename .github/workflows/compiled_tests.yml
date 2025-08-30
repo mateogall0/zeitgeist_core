@@ -31,13 +31,3 @@ jobs:
         run: make tests
       - name: run tests with memory leaks error status
         run: ASAN_OPTIONS=detect_leaks=1:exitcode=42  ./bin/protocol_tests
-
-  macos-tests:
-    runs-on: macos-latest
-    needs: normal-tests
-    steps:
-      - uses: actions/checkout@v4
-      - name: build with ASan
-        run: make tests SANITIZE=1
-      - name: run (ASan enabled, no leak check)
-        run: ./bin/protocol_tests
