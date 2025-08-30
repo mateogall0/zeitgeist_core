@@ -6,8 +6,8 @@
 #define MAX_SOCKET_CONNECTIONS 8
 #endif
 
-#ifndef BUFFER_SIZE
-#define BUFFER_SIZE 8192
+#ifndef ZBUFF_CHUNK_SIZE
+#define ZBUFF_CHUNK_SIZE 4096
 #endif
 
 #ifndef MAX_EVENTS

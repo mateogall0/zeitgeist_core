@@ -1,6 +1,6 @@
 CC := gcc
 CFLAGS := -Iinclude -Wall -Wextra -std=gnu11       # general flags
-TEST_CFLAGS := $(CFLAGS) -Itests/include -DTEST_BUILD -g  # extra flags for tests
+TEST_CFLAGS := $(CFLAGS) -Itests/include -DTEST_BUILD -g -fsanitize=address  # extra flags for tests
 
 SRC_DIR := src
 TESTS_DIR := tests

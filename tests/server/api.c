@@ -1,10 +1,11 @@
-#include "test_utils.h"
+#include "tests.h"
 #include "fixtures.h"
 #include "server/api/socket.h"
 #include "server/api/endpoint.h"
 #include "server/api/response.h"
 #include "server/api/errors.h"
 #include "common/status.h"
+#include "utils.h"
 #include <stdbool.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -123,8 +124,6 @@ int8_t test_server_api_request_single_endpoint() {
     return (0);
 }
 
-
-
 int8_t test_server_api_request_many_connections(uint32_t connections) {
     SETUP_SERVER_SOCKET();
     RUN_SERVER_SOCKET_LOOP();
@@ -153,5 +152,60 @@ int8_t test_server_api_request_many_connections(uint32_t connections) {
     DESTROY_SERVER_SOCKET();
     destroy_endpoints();
     destroy_request_errors_list();
+    return (0);
+}
+
+char *_echo_request(request_t *r) {
+    char *msg = strdup(r->body);
+    return (msg);
+}
+
+
+int8_t _test_server_api_echo_random_payload(size_t payload_length) {
+    init_endpoints_list();
+    set_endpoint(GET, "/example", _echo_request);
+    ASSERT(endpoints);
+    SETUP_SERVER_SOCKET();
+    RUN_SERVER_SOCKET_LOOP();
+
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+
+    struct sockaddr_in addr = {0};
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(SERVER_PORT);
+    addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+
+    if (connect(sock, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
+         perror("connect");
+         return 1;
+    }
+
+    size_t msg_len = strlen("GET /example\r\n\r\n");
+    size_t body_len = payload_length;
+    char *msg = malloc(msg_len + body_len + 1);
+    if (!msg) {
+        perror("malloc");
+        exit(1);
+    }
+
+    memcpy(msg, "GET /example\r\n\r\n", msg_len + 1);
+    char *body = random_string(payload_length);
+    strcat(msg, body);
+
+    if (send(sock, msg, strlen(msg), 0) < 0)
+        return (1);
+
+    char buf[payload_length + 1];
+    int n = recv(sock, buf, sizeof(buf)-1, 0);
+    buf[n] = '\0';
+    ASSERT(strcmp(buf, body) == 0);
+
+    free(body);
+    free(msg);
+
+    close(sock);
+
+    DESTROY_SERVER_SOCKET();
+    destroy_endpoints();
     return (0);
 }

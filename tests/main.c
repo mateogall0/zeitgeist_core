@@ -1,4 +1,4 @@
-#include "test_utils.h"
+#include "tests.h"
 #include "server/static.h"
 
 int main()

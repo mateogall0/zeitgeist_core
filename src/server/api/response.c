@@ -32,9 +32,9 @@ request_t *_parse_request(char *buff) {
     req->content_type = NULL;
     req->headers = NULL;
 
-    req->body = sstrdup(cut_after_first_delim(buff, "\n\n"));
+    req->body = sstrdup(cut_after_first_delim(buff, "\r\n\r\n"));
 
-    line = strtok(buff, "\n");
+    line = strtok(buff, "\r\n");
     while(line) {
         key = sstrdup(line);
         switch (i) {
@@ -65,14 +65,10 @@ request_t *_parse_request(char *buff) {
             }
             req->headers = sstrdup(value);
             break;
-        default:
-            free_request(req);
-            free(key);
-            return (NULL);
         }
         free(key);
         i++;
-        line = strtok(NULL, "\n");
+        line = strtok(NULL, "\r\n");
     }
     return (req);
 }
@@ -97,31 +93,45 @@ _send_response(int sockfd,
     return (send(sockfd, buf, size, 0));
 }
 
-
 void respond(int32_t client_fd) {
-    char *res, buffer[BUFFER_SIZE];
+    char *res, *buffer = NULL;
+    char chunk[ZBUFF_CHUNK_SIZE];
     request_t *req;
     methods m;
     endpoint_t *e;
-    int32_t bytes;
+    ssize_t n;
+    size_t total = 0;
 
     print_debug("Reached Respond\n");
-    bytes = recv(client_fd, buffer, BUFFER_SIZE - 1, 0);
-    if (bytes > 0)
-        buffer[bytes] = '\0';
-    else {
+
+    while ((n = recv(client_fd, chunk, sizeof(chunk) - 1, 0)) > 0) {
+        chunk[n] = '\0';
+        if (!buffer) {
+            buffer = malloc(n + 1);
+            memcpy(buffer, chunk, n + 1);
+            total = n;
+        } else {
+            buffer = realloc(buffer, total + n + 1);
+            memcpy(buffer + total, chunk, n + 1);
+            total += n;
+        }
+    }
+
+    if (!buffer) {
         close(client_fd);
         epoll_ctl(epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
         return;
     }
+
     print_debug("received buffer in response: \n%s\n", buffer);
+
     req = _parse_request(buffer);
+    free(buffer);
 
     if (!req)
         return;
 
     m = string_to_method(req->method);
-
     if (m >= METHODS_COUNT)
         return;
 
@@ -136,27 +146,18 @@ void respond(int32_t client_fd) {
         _send_response(client_fd, msg, strlen(msg), req->method, req->target);
         return;
     }
+
     res = e->handler(req);
     print_debug("%lu : response below\n", pthread_self());
     print_debug("%lu : %s\n", pthread_self(), res);
     print_debug("%lu : about to send response\n", pthread_self());
     _send_response(client_fd, res, strlen(res), req->method, req->target);
     print_debug("%lu : just sent response\n", pthread_self());
+
     if (res)
         free(res);
     free_request(req);
     print_debug("%lu : finished response process\n", pthread_self());
-}
-
-int32_t print_request(request_t *req) {
-    if (!req)
-        return (-1);
-
-    return printf("%s\n%s\n%s\n%s\n",
-                  req->method,
-                  req->content_type,
-                  req->headers,
-                  req->body);
 }
 
 void free_request(request_t *req) {

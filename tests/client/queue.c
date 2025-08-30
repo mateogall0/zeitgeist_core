@@ -1,4 +1,4 @@
-#include "test_utils.h"
+#include "tests.h"
 #include "zeitgeist_client.h"
 #include "fixtures.h"
 #include <string.h>
