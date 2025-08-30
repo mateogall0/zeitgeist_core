@@ -23,7 +23,7 @@ jobs:
 
 
   linux-memory-tests:
-    runs-on:ubuntu-latest
+    runs-on: ubuntu-latest
     needs: normal-tests
     steps:
       - uses: actions/checkout@v4
