@@ -132,18 +132,23 @@ void respond(int32_t client_fd) {
         return;
 
     m = string_to_method(req->method);
-    if (m >= METHODS_COUNT)
+    if (m >= METHODS_COUNT) {
+        free_request(req);
         return;
+    }
 
     e = find_endpoint(m, req->target);
     if (!e) {
         print_debug("%lu : sending 405\n", pthread_self());
         char *(*h)(request_t *) = get_request_error_handler(RES_STATUS_METHOD_NOT_ALLOWED);
-        if (!h)
+        if (!h) {
+            free_request(req);
             return;
+        }
         char *msg = h(req);
         print_debug("%lu : 405 to be sent:\n%s\n", pthread_self(), msg);
         _send_response(client_fd, msg, strlen(msg), req->method, req->target);
+        free_request(req);
         return;
     }
 
@@ -153,10 +158,10 @@ void respond(int32_t client_fd) {
     print_debug("%lu : about to send response\n", pthread_self());
     _send_response(client_fd, res, strlen(res), req->method, req->target);
     print_debug("%lu : just sent response\n", pthread_self());
+    free_request(req);
 
     if (res)
         free(res);
-    free_request(req);
     print_debug("%lu : finished response process\n", pthread_self());
 }
 

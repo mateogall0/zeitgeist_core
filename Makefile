@@ -1,6 +1,5 @@
 CC := gcc
-CFLAGS := -Iinclude -Wall -Wextra -std=gnu11       # general flags
-TEST_CFLAGS := $(CFLAGS) -Itests/include -DTEST_BUILD -g -fsanitize=address  # extra flags for tests
+CFLAGS := -Iinclude -Itests/include -Wall -Wextra -std=gnu11 -DTEST_BUILD -g -fsanitize=address       # general flags
 
 SRC_DIR := src
 TESTS_DIR := tests
@@ -18,7 +17,7 @@ TEST_OBJ := $(patsubst $(TESTS_DIR)/%.c,$(BUILD_DIR)/tests/%.o,$(TEST_SRC))
 
 # Main test binary
 $(BIN_DIR)/$(TEST_TARGET): $(OBJ) $(TEST_OBJ) | $(BIN_DIR)
-	$(CC) $(TEST_CFLAGS) $^ -o $@
+	$(CC) $(CFLAGS) $^ -o $@
 
 # Compile source files
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
@@ -28,7 +27,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 # Compile test files
 $(BUILD_DIR)/tests/%.o: $(TESTS_DIR)/%.c
 	@mkdir -p $(dir $@)
-	$(CC) $(TEST_CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 # Ensure bin folder exists
 $(BIN_DIR):
