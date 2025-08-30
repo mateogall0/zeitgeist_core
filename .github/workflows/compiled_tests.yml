@@ -1,4 +1,6 @@
-# Workflow: Runs normal tests and Valgrind memory checks
+# Workflow: Runs normal tests
+# Tests compliation uses `-fsanitize=address`
+# to display memory usage
 # Triggered on push or pull request to main
 
 name: Tests
@@ -10,10 +12,8 @@ on:
     branches: [ "main" ]
 
 jobs:
-  commmon-tests:
-
+  normal-tests:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4
     - name: make
@@ -21,14 +21,23 @@ jobs:
     - name: run tests
       run: bin/protocol_tests
 
-  valgrind-tests:
-    runs-on: ubuntu-latest
-    needs: commmon-tests
+
+  linux-memory-tests:
+    runs-on:ubuntu-latest
+    needs: normal-tests
     steps:
       - uses: actions/checkout@v4
-      - name: install valgrind
-        run: sudo apt-get update && sudo apt-get install -y valgrind
       - name: make
         run: make tests
-      - name: run tests with valgrind
-        run: valgrind --leak-check=full --error-exitcode=1 ./bin/protocol_tests
+      - name: run tests with memory leaks error status
+        run: ASAN_OPTIONS=detect_leaks=1:exitcode=42  ./bin/protocol_tests
+
+  macos-tests:
+    runs-on: macos-latest
+    needs: normal-tests
+    steps:
+      - uses: actions/checkout@v4
+      - name: build with ASan
+        run: make tests SANITIZE=1
+      - name: run (ASan enabled, no leak check)
+        run: ./bin/protocol_tests
