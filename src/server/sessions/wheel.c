@@ -42,13 +42,42 @@ connected_session_t *push_new_connected_session_towheel(int client_fd) {
     if (!connected_sessions_wheel->tail)
         connected_sessions_wheel->tail = new;
 
+    connected_sessions_wheel->head = new;
+
     return (new);
 }
 
-connected_session_t *pop_last_connected_session_fromwheel();
+connected_session_t *pop_last_connected_session_fromwheel() {
+    if (!connected_sessions_wheel || !connected_sessions_wheel->tail)
+        return (NULL);
+
+    connected_session_t *popped = connected_sessions_wheel->tail;
+    connected_sessions_wheel->tail = popped->prev;
+    if (popped->prev) {
+        popped->prev->next = NULL;
+        popped->prev = NULL;
+    }
+    else {
+        connected_sessions_wheel->head = NULL;
+    }
+    return (popped);
+}
 
 connected_session_t *pop_selected_connected_session_fromwheel(connected_session_t *session);
 
-void destroy_connected_session(connected_session_t *session);
+void destroy_connected_session(connected_session_t *session) {
+    if (session)
+        free(session);
+}
 
-void destroy_connected_sessions_wheel();
+void destroy_connected_sessions_wheel() {
+    if (!connected_sessions_wheel || !connected_sessions_wheel->tail)
+        return;
+    connected_session_t *current = pop_last_connected_session_fromwheel();
+    while(current) {
+        destroy_connected_session(current);
+        current = pop_last_connected_session_fromwheel();
+    }
+    free(connected_sessions_wheel);
+    connected_sessions_wheel = NULL;
+}
