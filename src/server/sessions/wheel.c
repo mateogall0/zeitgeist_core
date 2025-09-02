@@ -63,9 +63,26 @@ connected_session_t *pop_last_connected_session_fromwheel() {
     return (popped);
 }
 
-connected_session_t *pop_selected_connected_session_fromwheel(connected_session_t *session);
+connected_session_t *pop_selected_connected_session_fromwheel(connected_session_t *session) {
+    if (!connected_sessions_wheel ||
+        !connected_sessions_wheel->tail ||
+        !session)
+        return (NULL);
+    if (session->next)
+        session->next->prev = session->prev;
+    else
+        connected_sessions_wheel->tail = session->prev;
+    if (session->prev)
+        session->prev->next = session->next;
+    else
+        connected_sessions_wheel->head = session->next;
 
-void destroy_connected_session(connected_session_t *session) {
+    session->prev = NULL;
+    session->next = NULL;
+    return (session);
+}
+
+void destroy_connected_wheel_session(connected_session_t *session) {
     if (session)
         free(session);
 }
@@ -75,7 +92,7 @@ void destroy_connected_sessions_wheel() {
         return;
     connected_session_t *current = pop_last_connected_session_fromwheel();
     while(current) {
-        destroy_connected_session(current);
+        destroy_connected_wheel_session(current);
         current = pop_last_connected_session_fromwheel();
     }
     free(connected_sessions_wheel);

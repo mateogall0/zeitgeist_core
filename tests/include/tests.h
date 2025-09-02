@@ -59,25 +59,30 @@ int8_t _test_server_api_echo_random_payload(size_t payload_length);
 
 /* Server sessions */
 int8_t test_server_sessions_wheel_push();
+int8_t test_server_sessions_map_init_zerosize();
+int8_t _test_server_sessions_map_push(size_t map_size);
 
 /* All tests to be run go here */
-#define TESTS                                                                    \
-    RUN_TEST(test_client_queue_creation());                                      \
-    RUN_TEST(test_client_queue_capacity());                                      \
-    RUN_TEST(test_server_sessions_wheel_push());                                 \
-    RUN_TEST(test_client_queue_pop());                                           \
-    RUN_TEST(test_client_queue_pop_all());                                       \
-    RUN_TEST(test_server_queue_creation());                                      \
-    for (int32_t i = 1; i <= 2; i *= 2)                                          \
-      RUN_TEST(_test_server_queue_push_pop__threaded(i));                        \
-    RUN_TEST(test_server_api_create_socket());                                   \
-    RUN_TEST(test_server_api_create_endpoints());                                \
-    RUN_TEST(test_server_api_request_single_endpoint());                         \
-    for (uint32_t i = 16; i <= 512; i *= 2) {                                    \
-      RUN_TEST(test_server_api_request_many_connections(i));                     \
-    }                                                                            \
-    for (size_t i = 16; i <= 16384; i *= 2) {                                    \
-      RUN_TEST(_test_server_api_echo_random_payload(i));                         \
+#define TESTS                                                   \
+    RUN_TEST(test_client_queue_creation());                     \
+    RUN_TEST(test_client_queue_capacity());                     \
+    RUN_TEST(test_server_sessions_wheel_push());                \
+    RUN_TEST(test_client_queue_pop());                          \
+    RUN_TEST(test_server_sessions_map_init_zerosize());         \
+    for (size_t i = 256; i <= 8192; i *= 2)                     \
+        RUN_TEST(_test_server_sessions_map_push(i));            \
+    RUN_TEST(test_client_queue_pop_all());                      \
+    RUN_TEST(test_server_queue_creation());                     \
+    for (int32_t i = 1; i <= 2; i *= 2)                         \
+        RUN_TEST(_test_server_queue_push_pop__threaded(i));     \
+    RUN_TEST(test_server_api_create_socket());                  \
+    RUN_TEST(test_server_api_create_endpoints());               \
+    RUN_TEST(test_server_api_request_single_endpoint());        \
+    for (uint32_t i = 16; i <= 512; i *= 2) {                   \
+        RUN_TEST(test_server_api_request_many_connections(i));  \
+    }                                                           \
+    for (size_t i = 16; i <= 16384; i *= 2) {                   \
+        RUN_TEST(_test_server_api_echo_random_payload(i));      \
     }
 
 #endif

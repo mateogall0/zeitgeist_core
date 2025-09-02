@@ -26,7 +26,7 @@ connected_sessions_wheel_t *init_connected_sessions_wheel(time_t idle_timout);
 connected_session_t *push_new_connected_session_towheel(int client_fd);
 connected_session_t *pop_last_connected_session_fromwheel();
 connected_session_t *pop_selected_connected_session_fromwheel(connected_session_t *session);
-void destroy_connected_session(connected_session_t *session);
+void destroy_connected_wheel_session(connected_session_t *session);
 void destroy_connected_sessions_wheel();
 
 #endif
