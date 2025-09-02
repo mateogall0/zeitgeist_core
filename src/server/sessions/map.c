@@ -27,6 +27,7 @@ connected_sessions_map_t *init_connected_sessions_map(size_t size) {
 connected_session_t *add_connected_session(int fd) {
     if (!connected_sessions_map ||
         !connected_sessions_map ||
+        fd < 0 ||
         (size_t)fd >= connected_sessions_map->size)
         return (NULL);
 
@@ -55,6 +56,7 @@ connected_session_t *get_connected_session(int fd) {
 void destroy_connected_session(int fd) {
     if (!connected_sessions_map ||
         !connected_sessions_map->_map ||
+        fd < 0 ||
         (size_t)fd >= connected_sessions_map->size)
         return;
     connected_session_t *s = pop_selected_connected_session_fromwheel(get_connected_session(fd));
