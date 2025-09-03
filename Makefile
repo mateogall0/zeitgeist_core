@@ -37,6 +37,3 @@ clean:
 	rm -rf $(BUILD_DIR) $(BIN_DIR)
 
 tests: $(BIN_DIR)/$(TEST_TARGET)
-
-run-tests: tests
-	./$(BIN_DIR)/$(TEST_TARGET)

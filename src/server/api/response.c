@@ -131,6 +131,8 @@ void respond(int32_t client_fd) {
     if (!req)
         return;
 
+    req->client_fd = client_fd;
+
     m = string_to_method(req->method);
     if (m >= METHODS_COUNT) {
         free_request(req);

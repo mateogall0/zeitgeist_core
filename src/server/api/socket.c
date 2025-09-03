@@ -1,6 +1,7 @@
 #include "server/api/socket.h"
 #include "server/api/response.h"
 #include "server/queue.h"
+#include "server/sessions/map.h"
 #include "debug.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -148,6 +149,8 @@ void server_loop(thread_pool_t *pool)
                         continue;
                     }
 
+                    add_connected_session(client_fd);
+
                     if (ssc->verbose)
                         printf("New client connected: fd=%d\n", client_fd);
                 }
@@ -156,6 +159,7 @@ void server_loop(thread_pool_t *pool)
 
             // Client closed / error
             if (evs & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)) {
+                destroy_connected_session(fd);
                 epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, NULL);
                 close(fd);
                 if (ssc->verbose)

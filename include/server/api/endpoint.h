@@ -20,6 +20,7 @@ typedef struct {
     char *body;
     char *method;
     char *target;
+    int client_fd;
 } request_t;
 
 typedef struct endpoint_s{

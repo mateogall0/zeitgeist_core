@@ -28,5 +28,6 @@ connected_session_t *pop_last_connected_session_fromwheel();
 connected_session_t *pop_selected_connected_session_fromwheel(connected_session_t *session);
 void destroy_connected_wheel_session(connected_session_t *session);
 void destroy_connected_sessions_wheel();
+connected_session_t *peek_last_connected_wheel_session();
 
 #endif
