@@ -2,16 +2,49 @@
 #include "server/api/socket.h"
 #include "server/api/endpoint.h"
 #include "server/thread.h"
+#include "server/sessions/map.h"
+#include "server/sessions/wheel.h"
 #include <unistd.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <sys/wait.h>
+#include <time.h>
 
 
 /**
- * The endpoints are initialized and stated prior to it
+ * If `idle_timeout` is zero or lower, the connected sessions
+ * wheel and map do not get initialized
+ */
+void
+initialize_sessions_structure(time_t idle_timout,
+                              size_t map_size) {
+    if (idle_timout <= 0) {
+        fprintf(stderr, "Idle timeout must be greater than zero\n");
+        return;
+    }
+    if (map_size == 0) {
+        fprintf(stderr, "Map size must be greater than zero\n");
+        return;
+    }
+
+
+    if (!init_connected_sessions_wheel(idle_timout)) {
+        fprintf(stderr, "Error initializing sessions wheel\n");
+        return;
+    }
+
+    if (!init_connected_sessions_map(map_size)) {
+        fprintf(stderr, "Error initializing sessions map\n"
+                        "Clearing wheel\n");
+        destroy_connected_sessions_wheel();
+        return;
+    }
+}
+
+/**
+ * The endpoints are initialized and stated prior to this
  */
 void
 run_core_server_loop(uint32_t server_port,

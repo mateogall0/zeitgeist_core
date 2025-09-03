@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 
 typedef enum {
     GET,
@@ -28,6 +29,7 @@ typedef struct endpoint_s{
     char *target;
     char *(*handler)(request_t *);
     struct endpoint_s *next;
+    bool mock_http;
 } endpoint_t;
 
 typedef struct {

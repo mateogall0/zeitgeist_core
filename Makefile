@@ -1,5 +1,12 @@
 CC := gcc
-CFLAGS := -Iinclude -Itests/include -Wall -Wextra -std=gnu11 -DTEST_BUILD -g -fsanitize=address       # general flags
+CFLAGS := -Iinclude \
+	  -Itests/include \
+	  -Wall \
+	  -Wextra \
+	  -std=gnu11 \
+	  -DTEST_BUILD \
+	  -g \
+	  -fsanitize=address,undefined
 
 SRC_DIR := src
 TESTS_DIR := tests
@@ -13,7 +20,7 @@ OBJ := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRC))
 TEST_SRC := $(shell find $(TESTS_DIR) -name '*.c')
 TEST_OBJ := $(patsubst $(TESTS_DIR)/%.c,$(BUILD_DIR)/tests/%.o,$(TEST_SRC))
 
-.PHONY: clean tests run-tests
+.PHONY: clean tests
 
 # Main test binary
 $(BIN_DIR)/$(TEST_TARGET): $(OBJ) $(TEST_OBJ) | $(BIN_DIR)
