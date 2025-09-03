@@ -2,6 +2,7 @@
 #include "server/api/response.h"
 #include "server/queue.h"
 #include "server/sessions/map.h"
+#include "server/sessions/checker.h"
 #include "debug.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -116,6 +117,8 @@ void server_loop(thread_pool_t *pool)
             perror("epoll_wait failed");
             break;
         }
+
+        clear_idle_connection_sessions(epoll_fd);
 
         for (int32_t i = 0; i < n; i++) {
             int32_t fd = events[i].data.fd;
