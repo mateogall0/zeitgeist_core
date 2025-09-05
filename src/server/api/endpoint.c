@@ -53,7 +53,7 @@ _set_endpoint(methods method,
 }
 
 endpoint_t *
-_set_endpoint_va(int8_t ac,
+set_endpoint_va(int8_t ac,
                  ...) {
     if (ac < 3)
         return (NULL);
@@ -92,7 +92,7 @@ endpoint_t *
 set_endpoint(methods method,
              char *target,
              char *(*handler)(request_t *)) {
-    return (_set_endpoint_va(3, method, target, handler));
+    return (set_endpoint_va(3, method, target, handler));
 }
 
 int32_t print_endpoint(endpoint_t *e) {
