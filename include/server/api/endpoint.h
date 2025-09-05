@@ -22,6 +22,7 @@ typedef struct {
     char *method;
     char *target;
     int client_fd;
+    uintptr_t runtime_id;
 } request_t;
 
 typedef struct endpoint_s{
