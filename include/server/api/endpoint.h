@@ -30,6 +30,7 @@ typedef struct endpoint_s{
     char *(*handler)(request_t *);
     struct endpoint_s *next;
     bool mock_http;
+    uintptr_t runtime_id;
 } endpoint_t;
 
 typedef struct {
