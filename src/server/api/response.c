@@ -153,7 +153,7 @@ void respond(int32_t client_fd) {
         free_request(req);
         return;
     }
-    req->runtime_id = e->runtime_id;
+    req->endpoint = e;
 
     res = e->handler(req);
     print_debug("%lu : response below\n", pthread_self());

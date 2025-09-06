@@ -5,6 +5,8 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+typedef struct request_s request_t;
+
 typedef enum {
     GET,
     PUT,
@@ -15,28 +17,28 @@ typedef enum {
 
 extern const char *methods_str[METHODS_COUNT];
 
-typedef struct {
-    char *content_type;
-    char *headers;
-    char *body;
-    char *method;
-    char *target;
-    int client_fd;
-    uintptr_t runtime_id;
-} request_t;
-
 typedef struct endpoint_s{
     methods method;
     char *target;
     char *(*handler)(request_t *);
     struct endpoint_s *next;
     bool mock_http;
-    uintptr_t runtime_id;
+    uintptr_t meta;
 } endpoint_t;
 
 typedef struct {
     endpoint_t *head;
 } endpoint_list_t;
+
+struct request_s {
+    char *content_type;
+    char *headers;
+    char *body;
+    char *method;
+    char *target;
+    int client_fd;
+    endpoint_t *endpoint;
+};
 
 extern endpoint_list_t *endpoints;
 
