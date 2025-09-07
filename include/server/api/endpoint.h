@@ -43,6 +43,7 @@ struct request_s {
 extern endpoint_list_t *endpoints;
 
 endpoint_list_t *init_endpoints_list();
+endpoint_t *set_endpoint_va(int8_t ac, ...);
 endpoint_t *set_endpoint(methods method, char *target, char *(*handler)(request_t *));
 int32_t print_endpoint(endpoint_t *e);
 int32_t pall_endpoints();
