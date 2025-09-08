@@ -49,8 +49,8 @@ initialize_sessions_structure(time_t idle_timout,
 void
 run_core_server_loop(uint32_t server_port,
                      uint64_t batch_size,
-                     size_t thread_pool_size,
-                     bool verbose) {
+                     bool verbose,
+                     void (*handle_input)(int client_fd)) {
     if (verbose) {
         printf("Initialized endpoints:\n");
         if (pall_endpoints() <= 0)
@@ -58,14 +58,13 @@ run_core_server_loop(uint32_t server_port,
     }
     init_jobs_queue();
     init_server_socket_conn(server_port, verbose);
-    thread_pool_t *pool = init_thread_pool(thread_pool_size);
-    run_server_batches(batch_size, pool, verbose);
+    run_server_batches(batch_size, verbose, handle_input);
 }
 
 void
 run_server_batches(uint64_t batch_size,
-                   thread_pool_t *pool,
-                   bool verbose) {
+                   bool verbose,
+                   void (*handle_input)(int client_fd)) {
     if (!ssc) {
         if (verbose) fprintf(stderr, "Server socket not initialized\n");
         return;
@@ -82,10 +81,10 @@ run_server_batches(uint64_t batch_size,
         else if (pid == 0) {
             if (verbose)
                 printf("Starting server loop at %d...\n", pid);
-            server_loop(pool);
+            server_loop(handle_input);
             if (verbose)
                 printf("Clearing server at %d...\n", pid);
-            clear_core_server_loop(pool, verbose);
+            clear_core_server_loop(verbose);
             exit(0);
         }
     }
@@ -97,15 +96,13 @@ run_server_batches(uint64_t batch_size,
     }
     if (verbose)
         puts("All children are done");
-    clear_core_server_loop(pool, verbose);
+    clear_core_server_loop(verbose);
     if (verbose)
         puts("Parent cleared");
 }
 
 void
-clear_core_server_loop(thread_pool_t *pool,
-                       bool verbose) {
-    destroy_thread_pool(pool);
+clear_core_server_loop(bool verbose) {
     delete_jobs_queue();
     close_server_socket_conn();
     destroy_endpoints();
