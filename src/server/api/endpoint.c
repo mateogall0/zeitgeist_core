@@ -131,20 +131,29 @@ void destroy_endpoints() {
     endpoints = NULL;
 }
 
-endpoint_t *find_endpoint(methods method, char *target) {
-    endpoint_t *current;
-
+found_endpoint_t *find_endpoint(methods method, char *target) {
     if (!endpoints || method < 0 || method >= METHODS_COUNT || !target)
         return (NULL);
 
-    current = endpoints->head;
+    found_endpoint_t *fe = malloc(sizeof(found_endpoint_t));
+    if (!fe)
+        return (NULL);
+    fe->endpoint = NULL;
+    fe->found_target = false;
+
+    endpoint_t *current = endpoints->head;
 
     while (current) {
-        if (current->method == method && strcmp(target, current->target) == 0)
-            return (current);
+        if (strcmp(target, current->target) == 0) {
+            fe->found_target = true;
+            if (current->method == method) {
+                fe->endpoint = current;
+                break;
+            }
+        }
         current = current->next;
     }
-    return (NULL);
+    return (fe);
 }
 
 methods string_to_method(const char *str) {

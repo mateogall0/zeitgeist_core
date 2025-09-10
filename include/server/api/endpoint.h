@@ -40,6 +40,11 @@ struct request_s {
     endpoint_t *endpoint;
 };
 
+typedef struct {
+    endpoint_t *endpoint;
+    bool found_target;
+} found_endpoint_t;
+
 extern endpoint_list_t *endpoints;
 
 endpoint_list_t *init_endpoints_list();
@@ -48,7 +53,7 @@ endpoint_t *set_endpoint(methods method, char *target, char *(*handler)(request_
 int32_t print_endpoint(endpoint_t *e);
 int32_t pall_endpoints();
 void destroy_endpoints();
-endpoint_t *find_endpoint(methods method, char *target);
+found_endpoint_t *find_endpoint(methods method, char *target);
 methods string_to_method(const char *str);
 
 #endif
