@@ -67,7 +67,7 @@ int8_t test_server_api_create_endpoints() {
 
 char *_process_error_example_405(request_t *r) {
     (void)r;
-    static char *msg = "405 Method not allowed";
+    char *msg = strdup("405 Method not allowed");
     return (msg);
 }
 

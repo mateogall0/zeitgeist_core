@@ -148,8 +148,11 @@ void respond(int32_t client_fd) {
             return;
         }
         char *msg = h(req);
+        if (!msg)
+            perror("Message creation");
         print_debug("%lu : 405 to be sent:\n%s\n", pthread_self(), msg);
         _send_response(client_fd, msg, strlen(msg), req->method, req->target);
+        free(msg);
         free_request(req);
         return;
     }

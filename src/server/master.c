@@ -1,7 +1,7 @@
 #include "server/master.h"
+#include "server/master_errors.h"
 #include "server/api/socket.h"
 #include "server/api/endpoint.h"
-#include "server/thread.h"
 #include "server/sessions/map.h"
 #include "server/sessions/wheel.h"
 #include <unistd.h>
@@ -29,12 +29,10 @@ initialize_sessions_structure(time_t idle_timout,
         return;
     }
 
-
     if (!init_connected_sessions_wheel(idle_timout)) {
         fprintf(stderr, "Error initializing sessions wheel\n");
         return;
     }
-
     if (!init_connected_sessions_map(map_size)) {
         fprintf(stderr, "Error initializing sessions map\n"
                         "Clearing wheel\n");
@@ -56,8 +54,8 @@ run_core_server_loop(uint32_t server_port,
         if (pall_endpoints() <= 0)
             printf("No endpoints initialized");
     }
-    init_jobs_queue();
     init_server_socket_conn(server_port, verbose);
+    initialize_static_errors();
     run_server_batches(batch_size, verbose, handle_input);
 }
 
@@ -103,8 +101,8 @@ run_server_batches(uint64_t batch_size,
 
 void
 clear_core_server_loop(bool verbose) {
-    delete_jobs_queue();
     close_server_socket_conn();
+    destroy_request_errors_list();
     destroy_endpoints();
     if (verbose)
         puts("All cleared");
