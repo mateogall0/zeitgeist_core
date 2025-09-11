@@ -4,6 +4,8 @@
 #include "server/api/endpoint.h"
 #include "server/api/response.h"
 #include "server/api/errors.h"
+#include "server/sessions/wheel.h"
+#include "server/sessions/map.h"
 #include "common/status.h"
 #include "utils.h"
 #include <stdbool.h>
@@ -203,5 +205,92 @@ int8_t _test_server_api_echo_random_payload(size_t payload_length) {
 
     DESTROY_SERVER_SOCKET();
     destroy_endpoints();
+    return (0);
+}
+
+char *_manual_broadcast_request(request_t *r) {
+    char *broadcast_message = strdup("Hello from the broadcast");
+    for (size_t i = 0; i < connected_sessions_map->size; ++i) {
+        if (!connected_sessions_map->_map[i])
+            continue;
+        int client_fd = connected_sessions_map->_map[i]->client_fd;
+        if (!client_fd || r->client_fd == client_fd)
+            continue;
+        send_unrequested_payload(client_fd,
+                                 broadcast_message,
+                                 strlen(broadcast_message));
+    }
+    free(broadcast_message);
+    char *msg = strdup("done");
+    return (msg);
+}
+
+int8_t test_send_unrequested_payload() {
+    init_connected_sessions_map(1024);
+    init_connected_sessions_wheel(1024);
+    init_endpoints_list();
+    set_endpoint(POST, "/broadcast", _manual_broadcast_request);
+    SETUP_SERVER_SOCKET();
+    RUN_SERVER_SOCKET_LOOP();
+
+    // --- first client (will receive broadcast) ---
+    int sock0 = socket(AF_INET, SOCK_STREAM, 0);
+    struct sockaddr_in addr0 = {0};
+    addr0.sin_family = AF_INET;
+    addr0.sin_port = htons(SERVER_PORT);
+    addr0.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+
+    if (connect(sock0, (struct sockaddr*)&addr0, sizeof(addr0)) < 0) {
+         perror("connect sock0");
+         return 1;
+    }
+
+    // --- second client (will send broadcast request) ---
+    int sock1 = socket(AF_INET, SOCK_STREAM, 0);
+    struct sockaddr_in addr1 = {0};
+    addr1.sin_family = AF_INET;
+    addr1.sin_port = htons(SERVER_PORT);
+    addr1.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+
+    if (connect(sock1, (struct sockaddr*)&addr1, sizeof(addr1)) < 0) {
+         perror("connect sock1");
+         return 1;
+    }
+
+    // sock1 sends POST /broadcast → triggers broadcast to sock0
+    const char *req = "POST /broadcast\r\n\r\n";
+    if (send(sock1, req, strlen(req), 0) < 0) {
+        perror("send sock1");
+        return 1;
+    }
+
+    // sock1 should get "done"
+    char buf1[128];
+    int n1 = recv(sock1, buf1, sizeof(buf1)-1, 0);
+    if (n1 <= 0) {
+        perror("recv sock1");
+        return 1;
+    }
+    buf1[n1] = '\0';
+    ASSERT(strcmp(buf1, "done") == 0);
+
+    // sock0 should get the broadcast message
+    char buf0[128];
+    int n0 = recv(sock0, buf0, sizeof(buf0)-1, 0);
+    if (n0 <= 0) {
+        perror("recv sock0");
+        return 1;
+    }
+    buf0[n0] = '\0';
+    ASSERT(strcmp(buf0, "Hello from the broadcast") == 0);
+
+    close(sock0);
+    close(sock1);
+
+    DESTROY_SERVER_SOCKET();
+    destroy_endpoints();
+    destroy_connected_sessions_map();
+    destroy_connected_sessions_wheel();
+
     return (0);
 }

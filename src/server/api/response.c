@@ -191,6 +191,15 @@ cleanup:
     print_debug("%lu : finished response process\n", pthread_self());
 }
 
+size_t
+send_unrequested_payload(int sockfd,
+                         char *buf,
+                         size_t size) {
+    if (!buf)
+        return (0);
+    return (send(sockfd, buf, size, 0));
+}
+
 void free_request(request_t *req) {
     if (!req)
         return;

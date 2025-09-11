@@ -56,6 +56,7 @@ int8_t test_server_api_create_endpoints();
 int8_t test_server_api_request_single_endpoint();
 int8_t test_server_api_request_many_connections(uint32_t connections);
 int8_t _test_server_api_echo_random_payload(size_t payload_length);
+int8_t test_send_unrequested_payload();
 
 /* Server sessions */
 int8_t test_server_sessions_wheel_push();
@@ -69,6 +70,7 @@ int8_t _test_server_sessions_map_push(size_t map_size);
     RUN_TEST(test_server_sessions_wheel_push());                \
     RUN_TEST(test_client_queue_pop());                          \
     RUN_TEST(test_server_sessions_map_init_zerosize());         \
+    RUN_TEST(test_send_unrequested_payload());                  \
     for (size_t i = 256; i <= 8192; i *= 2)                     \
         RUN_TEST(_test_server_sessions_map_push(i));            \
     RUN_TEST(test_client_queue_pop_all());                      \

@@ -12,6 +12,7 @@ typedef enum {
 void respond(int32_t client_fd);
 void free_request(request_t *req);
 int32_t print_request(request_t *req);
+size_t send_unrequested_payload(int sockfd, char *buf, size_t size);
 
 
 #endif
