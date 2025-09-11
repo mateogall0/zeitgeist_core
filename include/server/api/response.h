@@ -5,9 +5,7 @@
 
 
 typedef enum {
-    METHOD = 0,
-    CONTENT_TYPE = 1,
-    HEADERS = 2,
+    METHOD_LINE = 0,
 } line_idxs;
 
 

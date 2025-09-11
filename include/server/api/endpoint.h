@@ -1,6 +1,7 @@
 #ifndef ENDPOINT_H
 #define ENDPOINT_H
 
+#include "server/api/headers.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
@@ -31,8 +32,7 @@ typedef struct {
 } endpoint_list_t;
 
 struct request_s {
-    char *content_type;
-    char *headers;
+    request_headers_list_t *headers;
     char *body;
     char *method;
     char *target;

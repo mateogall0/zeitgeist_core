@@ -2,6 +2,7 @@
 #include "server/api/endpoint.h"
 #include "server/api/socket.h"
 #include "server/api/errors.h"
+#include "server/api/headers.h"
 #include "common/str.h"
 #include "common/status.h"
 #include "debug.h"
@@ -29,16 +30,14 @@ request_t *_parse_request(char *buff) {
 
     req->method = NULL;
     req->target = NULL;
-    req->content_type = NULL;
-    req->headers = NULL;
+    req->headers = create_headers_list();
 
     req->body = sstrdup(cut_after_first_delim(buff, "\r\n\r\n"));
 
     line = strtok(buff, "\r\n");
     while(line) {
         key = sstrdup(line);
-        switch (i) {
-        case METHOD:
+        if (i == METHOD_LINE) {
             value = cut_after_first_delim(key, " ");
             if (!string_in_array(key, methods_str, METHODS_COUNT)) {
                 free_request(req);
@@ -46,25 +45,15 @@ request_t *_parse_request(char *buff) {
             }
             req->method = sstrdup(key);
             req->target = sstrdup(value);
-            break;
-        case CONTENT_TYPE:
-            value = cut_after_first_delim(key, ": ");
-            if (strcmp(key, "Content-Type") != 0) {
-                free_request(req);
-                free(key);
-                return (NULL);
+        }
+        else {
+            request_header_t *new_header = create_push_header_to_list(req->headers,
+                                                                      NULL,
+                                                                      NULL);
+            if (new_header) {
+                new_header->value = sstrdup(value);
+                new_header->key = sstrdup(key);
             }
-            req->content_type = sstrdup(value);
-            break;
-        case HEADERS:
-            value = cut_after_first_delim(key, ": ");
-            if (strcmp(key, "Headers") != 0) {
-                free_request(req);
-                free(key);
-                return (NULL);
-            }
-            req->headers = sstrdup(value);
-            break;
         }
         free(key);
         i++;
@@ -196,10 +185,7 @@ void free_request(request_t *req) {
         free(req->method);
     if (req->target)
         free(req->target);
-    if (req->headers)
-        free(req->headers);
-    if (req->content_type)
-        free(req->content_type);
+    destroy_headers_list(req->headers);
     if (req->body)
         free(req->body);
     free(req);
