@@ -3,9 +3,11 @@
 
 
 #include <time.h>
+#include <stdint.h>
 
 
 typedef struct connected_session_s {
+    uintptr_t meta;
     int client_fd;
     time_t last_request;
     time_t start_time;
