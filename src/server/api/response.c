@@ -75,8 +75,8 @@ _send_response(int sockfd,
     if (get_log_requests()) {
         printf("\033[36m%s\033[0m"
                " %s\n",
-               method,
-               target);
+               method ? method : "no method",
+               target ? target : "no target");
     }
 
     return (send(sockfd, buf, size, 0));
@@ -119,62 +119,75 @@ void respond(int32_t client_fd) {
 
     req = _parse_request(buffer);
     free(buffer);
+    print_debug("just tried to parse and freed the buffer\n");
+
 
     if (!req)
-        return;
+        goto fail_400;
+    print_debug("successfully parsed the request\n");
 
     req->client_fd = client_fd;
 
     m = string_to_method(req->method);
-    if (m >= METHODS_COUNT) {
-        free_request(req);
-        return;
-    }
+    if (m >= METHODS_COUNT)
+        goto fail_405;
 
     fe = find_endpoint(m, req->target);
     if (!fe)
-        goto cleanup;
+        goto fail_400;
     if (!fe->found_target)
         goto fail_404;
     e = fe->endpoint;
-    if (!e) {
+    if (!e)
         goto fail_405;
-    }
     req->endpoint = e;
 
     res = e->handler(req);
     print_debug("%lu : response below\n", pthread_self());
     print_debug("%lu : %s\n", pthread_self(), res);
     print_debug("%lu : about to send response\n", pthread_self());
-    _send_response(client_fd, res, strlen(res), req->method, req->target);
+    _send_response(client_fd,
+                   res,
+                   strlen(res),
+                   req->method,
+                   req->target);
     print_debug("%lu : just sent response\n", pthread_self());
 
     goto cleanup;
 
+
+fail_400:
+    h = get_request_error_handler(RES_STATUS_BAD_REQUEST);
+    goto send_failure;
+
 fail_404:
     h = get_request_error_handler(RES_STATUS_NOT_FOUND);
-    if (!h)
-        goto cleanup;
-    msg = h(req);
-    _send_response(client_fd, msg, strlen(msg), req->method, req->target);
-    goto cleanup;
+    goto send_failure;
 
 fail_405:
     h = get_request_error_handler(RES_STATUS_METHOD_NOT_ALLOWED);
+    goto send_failure;
+
+send_failure:
     if (!h)
         goto cleanup;
     msg = h(req);
-    _send_response(client_fd, msg, strlen(msg), req->method, req->target);
-    goto cleanup;
+    print_debug("About to send the following error msg:\n%s\n", msg);
+    _send_response(client_fd,
+                   msg,
+                   strlen(msg),
+                   req ? req->method : NULL,
+                   req ? req->target : NULL);
+    print_debug("sent the answer");
 
 cleanup:
-    free_request(req);
     if (fe)
         free(fe);
     if (msg)
         free(msg);
     if (res)
         free(res);
+    free_request(req);
     print_debug("%lu : finished response process\n", pthread_self());
 }
 
