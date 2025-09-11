@@ -22,13 +22,9 @@ int8_t test_server_api_create_socket() {
         return (1);
     }
     else if (pid == 0) { // child
-        init_jobs_queue();
         init_server_socket_conn(5555, false);
-        thread_pool_t *tp = init_thread_pool(2);
-        server_loop(tp);
+        server_loop(respond);
         close_server_socket_conn();
-        destroy_thread_pool(tp);
-        delete_jobs_queue();
         exit(0);
     }
     else { // parent
@@ -71,7 +67,7 @@ int8_t test_server_api_create_endpoints() {
 
 char *_process_error_example_405(request_t *r) {
     (void)r;
-    static char *msg = "405 Method not allowed";
+    char *msg = strdup("405 Method not allowed");
     return (msg);
 }
 

@@ -65,8 +65,7 @@ void destroy_connected_session(int fd) {
 }
 
 void destroy_connected_sessions_map() {
-    if (!connected_sessions_map ||
-        !connected_sessions_map->_map)
+    if (!connected_sessions_map)
         return;
     free(connected_sessions_map->_map);
     free(connected_sessions_map);

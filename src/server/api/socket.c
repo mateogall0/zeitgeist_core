@@ -81,8 +81,7 @@ int32_t _set_nonblocking(int32_t fd) {
     return fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 }
 
-void server_loop(thread_pool_t *pool)
-{
+void server_loop(void (*handle_input)(int client_fd)) {
     if (!ssc || epoll_fd >= 0)
         return;
 
@@ -169,10 +168,8 @@ void server_loop(thread_pool_t *pool)
                     printf("Client disconnected: fd=%d\n", fd);
                 continue;
             }
-            // push a job only once per available data
-            job_t *job = create_job(respond, fd);
-            if (job)
-                push_job(job, pool);
+
+            handle_input(fd);
         }
     }
 

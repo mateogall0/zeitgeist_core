@@ -94,13 +94,16 @@ _send_response(int sockfd,
 }
 
 void respond(int32_t client_fd) {
-    char *res, *buffer = NULL;
+    char *res = NULL, *buffer = NULL;
     char chunk[ZBUFF_CHUNK_SIZE];
+    char *msg = NULL;
     request_t *req;
     methods m;
     endpoint_t *e;
     ssize_t n;
     size_t total = 0;
+    char *(*h)(request_t *);
+    found_endpoint_t *fe = NULL;
 
     print_debug("Reached Respond\n");
 
@@ -139,20 +142,16 @@ void respond(int32_t client_fd) {
         return;
     }
 
-    e = find_endpoint(m, req->target);
+    fe = find_endpoint(m, req->target);
+    if (!fe)
+        goto cleanup;
+    if (!fe->found_target)
+        goto fail_404;
+    e = fe->endpoint;
     if (!e) {
-        print_debug("%lu : sending 405\n", pthread_self());
-        char *(*h)(request_t *) = get_request_error_handler(RES_STATUS_METHOD_NOT_ALLOWED);
-        if (!h) {
-            free_request(req);
-            return;
-        }
-        char *msg = h(req);
-        print_debug("%lu : 405 to be sent:\n%s\n", pthread_self(), msg);
-        _send_response(client_fd, msg, strlen(msg), req->method, req->target);
-        free_request(req);
-        return;
+        goto fail_405;
     }
+    req->endpoint = e;
 
     res = e->handler(req);
     print_debug("%lu : response below\n", pthread_self());
@@ -160,8 +159,31 @@ void respond(int32_t client_fd) {
     print_debug("%lu : about to send response\n", pthread_self());
     _send_response(client_fd, res, strlen(res), req->method, req->target);
     print_debug("%lu : just sent response\n", pthread_self());
-    free_request(req);
 
+    goto cleanup;
+
+fail_404:
+    h = get_request_error_handler(RES_STATUS_NOT_FOUND);
+    if (!h)
+        goto cleanup;
+    msg = h(req);
+    _send_response(client_fd, msg, strlen(msg), req->method, req->target);
+    goto cleanup;
+
+fail_405:
+    h = get_request_error_handler(RES_STATUS_METHOD_NOT_ALLOWED);
+    if (!h)
+        goto cleanup;
+    msg = h(req);
+    _send_response(client_fd, msg, strlen(msg), req->method, req->target);
+    goto cleanup;
+
+cleanup:
+    free_request(req);
+    if (fe)
+        free(fe);
+    if (msg)
+        free(msg);
     if (res)
         free(res);
     print_debug("%lu : finished response process\n", pthread_self());

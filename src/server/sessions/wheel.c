@@ -90,7 +90,7 @@ void destroy_connected_wheel_session(connected_session_t *session) {
 }
 
 void destroy_connected_sessions_wheel() {
-    if (!connected_sessions_wheel || !connected_sessions_wheel->tail)
+    if (!connected_sessions_wheel)
         return;
     connected_session_t *current = pop_last_connected_session_fromwheel();
     while(current) {

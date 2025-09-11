@@ -53,7 +53,7 @@ _set_endpoint(methods method,
 }
 
 endpoint_t *
-_set_endpoint_va(int8_t ac,
+set_endpoint_va(int8_t ac,
                  ...) {
     if (ac < 3)
         return (NULL);
@@ -92,7 +92,7 @@ endpoint_t *
 set_endpoint(methods method,
              char *target,
              char *(*handler)(request_t *)) {
-    return (_set_endpoint_va(3, method, target, handler));
+    return (set_endpoint_va(3, method, target, handler));
 }
 
 int32_t print_endpoint(endpoint_t *e) {
@@ -131,20 +131,29 @@ void destroy_endpoints() {
     endpoints = NULL;
 }
 
-endpoint_t *find_endpoint(methods method, char *target) {
-    endpoint_t *current;
-
+found_endpoint_t *find_endpoint(methods method, char *target) {
     if (!endpoints || method < 0 || method >= METHODS_COUNT || !target)
         return (NULL);
 
-    current = endpoints->head;
+    found_endpoint_t *fe = malloc(sizeof(found_endpoint_t));
+    if (!fe)
+        return (NULL);
+    fe->endpoint = NULL;
+    fe->found_target = false;
+
+    endpoint_t *current = endpoints->head;
 
     while (current) {
-        if (current->method == method && strcmp(target, current->target) == 0)
-            return (current);
+        if (strcmp(target, current->target) == 0) {
+            fe->found_target = true;
+            if (current->method == method) {
+                fe->endpoint = current;
+                break;
+            }
+        }
         current = current->next;
     }
-    return (NULL);
+    return (fe);
 }
 
 methods string_to_method(const char *str) {

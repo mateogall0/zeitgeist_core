@@ -7,17 +7,22 @@
 #include <time.h>
 
 
-void initialize_sessions_structure(time_t idle_timout,
-                                   size_t map_size);
-void run_core_server_loop(uint32_t server_port,
-                          uint64_t batch_size,
-                          size_t thread_pool_size,
-                          bool verbose);
-void run_server_batches(uint64_t batch_size,
-                        thread_pool_t *pool,
-                        bool verbose);
-void clear_core_server_loop(thread_pool_t *pool,
-                            bool verbose);
+void
+initialize_sessions_structure(time_t idle_timout,
+                              size_t map_size);
 
+void
+run_core_server_loop(uint32_t server_port,
+                     uint64_t batch_size,
+                     bool verbose,
+                     void (*handle_input)(int client_fd));
+
+void
+run_server_batches(uint64_t batch_size,
+                   bool verbose,
+                   void (*handle_input)(int client_fd));
+
+void
+clear_core_server_loop(bool verbose);
 
 #endif

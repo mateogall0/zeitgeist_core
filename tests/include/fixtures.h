@@ -14,7 +14,6 @@
 #define SETUP_SERVER_SOCKET()                               \
     int ztest_pipefd[2];                                    \
     pid_t pid;                                              \
-    thread_pool_t *tp;                                      \
     if (pipe(ztest_pipefd) < 0) {                           \
         perror("pipe failed");                              \
         return 1;                                           \
@@ -24,19 +23,15 @@
         return 1;                                           \
     } else if (pid == 0) {                                  \
         close(ztest_pipefd[0]); /* child closes read end */ \
-        init_jobs_queue();                                  \
         init_server_socket_conn(SERVER_PORT, false);        \
         /* signal parent that server is ready */            \
         write(ztest_pipefd[1], "1", 1);                     \
         close(ztest_pipefd[1]);                             \
-        tp = init_thread_pool(2);                           \
     }
 
 #define RUN_SERVER_SOCKET_LOOP()                    \
     if (pid == 0) {                                 \
-        server_loop(tp);                            \
-        destroy_thread_pool(tp);                    \
-        delete_jobs_queue();                        \
+        server_loop(respond);                       \
         close_server_socket_conn();                 \
         exit(0);                                    \
     } else {                                        \

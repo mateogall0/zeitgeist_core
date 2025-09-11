@@ -38,7 +38,7 @@ typedef struct {
 extern server_socket_conn_t *ssc;
 
 void init_server_socket_conn(uint32_t port, bool verbose);
-void server_loop(thread_pool_t *pool);
+void server_loop(void (*handle_input)(int client_fd));
 void close_server_socket_conn();
 
 #endif
