@@ -32,6 +32,7 @@ endpoint_t *
 _set_endpoint(methods method,
               char *target,
               char *(*handler)(request_t *),
+              bool inmediate_res,
               bool mock_http) {
     endpoint_t *endpoint;
 
@@ -47,6 +48,7 @@ _set_endpoint(methods method,
     endpoint->handler = handler;
     endpoint->next = endpoints->head;
     endpoint->mock_http = mock_http;
+    endpoint->inmediate_res = inmediate_res;
 
     endpoints->head = endpoint;
     return (endpoint);
@@ -62,6 +64,7 @@ set_endpoint_va(int8_t ac,
     char *target;
     char *(*handler)(request_t *);
     bool mock_http = false;
+    bool inmediate_res = false;
     va_list ap;
     va_start(ap, ac);
     for (int i = 0; i < ac; i++) {
@@ -76,6 +79,9 @@ set_endpoint_va(int8_t ac,
             handler = va_arg(ap, char* (*)(request_t *));
             break;
         case 3:
+            inmediate_res = (bool)va_arg(ap, int);
+            break;
+        case 4:
             mock_http = (bool)va_arg(ap, int);
             break;
         }
@@ -85,6 +91,7 @@ set_endpoint_va(int8_t ac,
     return(_set_endpoint(method,
                          target,
                          handler,
+                         inmediate_res,
                          mock_http));
 }
 

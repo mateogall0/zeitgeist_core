@@ -24,6 +24,7 @@ typedef struct endpoint_s{
     char *(*handler)(request_t *);
     struct endpoint_s *next;
     bool mock_http;
+    bool inmediate_res;
     uintptr_t meta;
 } endpoint_t;
 

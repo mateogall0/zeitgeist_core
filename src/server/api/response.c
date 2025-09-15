@@ -143,6 +143,8 @@ void respond(int32_t client_fd) {
     req->endpoint = e;
 
     res = e->handler(req);
+    if (e->inmediate_res)
+        goto cleanup;
     print_debug("%lu : response below\n", pthread_self());
     print_debug("%lu : %s\n", pthread_self(), res);
     print_debug("%lu : about to send response\n", pthread_self());
