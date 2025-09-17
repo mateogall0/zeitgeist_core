@@ -22,16 +22,29 @@ typedef struct
 } received_payload_queue_t;
 
 
-extern received_payload_queue_t *client_payload_queue;
+received_payload_queue_t *
+init_client_payload_queue(size_t capacity);
 
-int8_t init_client_payload_queue(size_t capacity);
-void clear_client_payload_queue();
-received_payload_t *pop_client_payload();
-received_payload_t *push_client_payload(char *data, size_t len);
-int8_t destroy_client_payload_queue();
-void free_received_payload(received_payload_t *p);
-int32_t print_received_payload(received_payload_t *p);
-int32_t pall_client_received_payload();
+void
+clear_client_payload_queue(received_payload_queue_t *q);
+
+received_payload_t *
+pop_client_payload(received_payload_queue_t *q);
+
+received_payload_t *
+push_client_payload(received_payload_queue_t *q, char *data, size_t len);
+
+void
+destroy_client_payload_queue(received_payload_queue_t *q);
+
+void
+free_received_payload(received_payload_t *p);
+
+int
+print_received_payload(received_payload_t *p);
+
+int
+pall_client_received_payload(received_payload_queue_t *q);
 
 
 #endif
