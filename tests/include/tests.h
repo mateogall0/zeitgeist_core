@@ -24,7 +24,7 @@
 // Run a test function, print green dot on success, red E and exit on failure
 #define RUN_TEST(fn) do {                                   \
         int _res = fn;                                      \
-        printf("%04d || %-100s ", ++_test_counter, #fn);     \
+        printf("%04d || %-70s ", ++_test_counter, #fn);     \
         if (_res == 0) {                                    \
             printf(_COLOR_GREEN "[PASS]\n" _COLOR_RESET);   \
         } else {                                            \

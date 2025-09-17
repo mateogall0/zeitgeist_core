@@ -2,8 +2,10 @@
 #define ZCONNECTION_H
 
 
+#include "common/methods.h"
 #include <stdint.h>
 #include <arpa/inet.h>
+#include <sys/types.h>
 
 
 #ifndef CLIENT_BUFFER_SIZE
@@ -20,9 +22,16 @@ typedef struct
 
 connection_t *init_conn(void(*process)(char *, size_t));
 int8_t connect_client(connection_t *c, char *url, int32_t port);
-size_t send_payload(connection_t *c, char *payload, size_t len);
+ssize_t send_payload(connection_t *c, char *payload, size_t len);
 void client_conn_loop(connection_t *c);
 int8_t disconnect(connection_t *c);
 
+ssize_t
+send_request_payload(connection_t *c,
+                     methods method,
+                     char *target,
+                     char *headers,
+                     unsigned int req_id,
+                     char *body);
 
 #endif

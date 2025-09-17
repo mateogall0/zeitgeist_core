@@ -57,7 +57,7 @@ push_client_payload(received_payload_queue_t *q, char *data, size_t len) {
         len < 1)
         return (NULL);
 
-    received_payload_t *new = (received_payload_t *)malloc(sizeof(received_payload_t));
+    received_payload_t *new = malloc(sizeof(received_payload_t));
 
     if (!new)
         return (NULL);

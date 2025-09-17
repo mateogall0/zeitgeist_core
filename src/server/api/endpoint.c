@@ -1,5 +1,6 @@
 #include "server/api/endpoint.h"
 #include "common/str.h"
+#include "common/methods.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -8,15 +9,6 @@
 #include <stdbool.h>
 #include <stdarg.h>
 
-
-const char *methods_str[METHODS_COUNT] = {
-    "GET",
-    "PUT",
-    "DELETE",
-    "POST"
-};
-
-endpoint_list_t *endpoints = NULL;
 
 endpoint_list_t *init_endpoints_list() {
     if (endpoints) {
@@ -27,6 +19,7 @@ endpoint_list_t *init_endpoints_list() {
     endpoints->head = NULL;
     return (endpoints);
 }
+
 
 endpoint_t *
 _set_endpoint(methods method,
@@ -161,17 +154,4 @@ found_endpoint_t *find_endpoint(methods method, char *target) {
         current = current->next;
     }
     return (fe);
-}
-
-methods string_to_method(const char *str) {
-    int32_t i;
-
-    if(!str)
-        return (METHODS_COUNT);
-
-    for (i = 0; i < METHODS_COUNT; i++) {
-        if (strcmp(str, methods_str[i]) == 0)
-            return ((methods)i);
-    }
-    return (METHODS_COUNT);
 }
