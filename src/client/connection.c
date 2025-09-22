@@ -86,7 +86,7 @@ send_request_payload(connection_t *c,
                      methods method,
                      char *target,
                      char *headers,
-                     unsigned int req_id,
+                     unsigned long req_id,
                      char *body) {
     if (!c || !target ||!headers || !body ||
         method < GET || method >= METHODS_COUNT)
@@ -97,13 +97,11 @@ send_request_payload(connection_t *c,
     ssize_t sent_count;
 
     len = asprintf(&buf,
-                   "%s %s\r\n" // method - target
-                   "Request-id: %u\r\n" // request id
-                   "%s\r\n" // headers
-                   "\r\n" // empty line
-                   "%s", // body content
-                   methods_str[method], target,
-                   req_id,
+                   "%s %s %lu\r\n"  // method - target - request id
+                   "%s\r\n"  // headers
+                   "\r\n"  // empty line
+                   "%s",  // body content
+                   methods_str[method], target, req_id,
                    headers,
                    body);
 

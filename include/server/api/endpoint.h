@@ -30,6 +30,7 @@ struct request_s {
     char *method;
     char *target;
     int client_fd;
+    unsigned long id;
     endpoint_t *endpoint;
 };
 

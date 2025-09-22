@@ -31,7 +31,7 @@ send_request_payload(connection_t *c,
                      methods method,
                      char *target,
                      char *headers,
-                     unsigned int req_id,
+                     unsigned long req_id,
                      char *body);
 
 #endif

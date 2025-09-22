@@ -31,6 +31,7 @@ request_t *_parse_request(char *buff) {
     req->method = NULL;
     req->target = NULL;
     req->headers = create_headers_list();
+    req->id = 0;
 
     req->body = sstrdup(cut_after_first_delim(buff, "\r\n\r\n"));
 
@@ -39,12 +40,15 @@ request_t *_parse_request(char *buff) {
         key = sstrdup(line);
         if (i == METHOD_LINE) {
             value = cut_after_first_delim(key, " ");
+            char *req_id_str = cut_after_first_delim(value, " ");
             if (!string_in_array(key, methods_str, METHODS_COUNT)) {
                 free_request(req);
                 return (NULL);
             }
             req->method = sstrdup(key);
             req->target = sstrdup(value);
+            if (req_id_str)
+                req->id = strtoul(req_id_str, NULL, 10);
         }
         else {
             request_header_t *new_header = create_push_header_to_list(req->headers,
@@ -156,7 +160,6 @@ void respond(int32_t client_fd) {
     print_debug("%lu : just sent response\n", pthread_self());
 
     goto cleanup;
-
 
 fail_400:
     h = get_request_error_handler(RES_STATUS_BAD_REQUEST);
