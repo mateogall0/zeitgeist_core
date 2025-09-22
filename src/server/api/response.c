@@ -125,7 +125,6 @@ void respond(int32_t client_fd) {
     free(buffer);
     print_debug("just tried to parse and freed the buffer\n");
 
-
     if (!req)
         goto fail_400;
     print_debug("successfully parsed the request\n");
