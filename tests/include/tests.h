@@ -46,6 +46,10 @@ int8_t test_client_queue_capacity();
 int8_t test_client_queue_pop();
 int8_t test_client_queue_pop_all();
 
+/* Client unresolved */
+int8_t test_client_unresolved_creation();
+int8_t test_client_unresolved_pop();
+
 /* Server queue */
 int8_t test_server_queue_creation();
 int8_t _test_server_queue_push_pop__threaded(size_t thread_pool_size);
@@ -65,6 +69,8 @@ int8_t _test_server_sessions_map_push(size_t map_size);
 
 /* All tests to be run go here */
 #define TESTS                                                   \
+    RUN_TEST(test_client_unresolved_creation());                \
+    RUN_TEST(test_client_unresolved_pop());                     \
     RUN_TEST(test_client_queue_creation());                     \
     RUN_TEST(test_client_queue_capacity());                     \
     RUN_TEST(test_server_sessions_wheel_push());                \

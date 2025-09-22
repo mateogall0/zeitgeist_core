@@ -99,7 +99,7 @@ free_unresolved_requests_list(unresolved_requests_list_t *list) {
     unresolved_request_t *current = list->head, *tmp;
     while (current) {
         tmp = current->next;
-        free(current);
+        free_unresolved_request(current);
         current = tmp;
     }
 
