@@ -34,4 +34,6 @@ send_request_payload(connection_t *c,
                      unsigned long req_id,
                      char *body);
 
+void destroy_conn(connection_t *conn);
+
 #endif

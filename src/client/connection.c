@@ -115,3 +115,10 @@ send_request_payload(connection_t *c,
 
     return (sent_count);
 }
+
+void destroy_conn(connection_t *conn) {
+    if (!conn)
+        return;
+    disconnect(conn);
+    free(conn);
+}

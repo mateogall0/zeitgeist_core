@@ -6,9 +6,9 @@
 #include <stdint.h>
 
 
-typedef struct received_response_s
+typedef struct received_payload_s
 {
-    struct received_response_s *next;
+    struct received_payload_s *next;
     size_t len;
     char *data;
 } received_payload_t;
