@@ -2,8 +2,7 @@
 #define ZCLIENT_MASTER_H
 
 
-#include <stdbool.h>
-#include <sys/types.h>
+#include <stddef.h>
 #include <stdint.h>
 #include "client/connection.h"
 #include "client/queue.h"
@@ -35,7 +34,7 @@ zclient_handler_t *
 create_zclient(size_t unresolved_payload_capacity,
                size_t resolved_payload_capacity);
 
-bool
+int8_t
 connect_zclient(zclient_handler_t *zclient,
                 char *url, int32_t port);
 
@@ -46,9 +45,15 @@ zclient_make_request(zclient_handler_t *zclient,
                      char *headers,
                      char *body);
 
+size_t
+zclient_listen_input(zclient_handler_t *zclient);
+
+void
+zclient_process_input(zclient_handler_t *zclient);
+
 zclient_response_t *
-zclient_read_response(zclient_handler_t *zclient,
-                      unsigned long req_id);
+zclient_get_response(zclient_handler_t *zclient,
+                     unsigned long req_id);
 
 zclient_response_t *
 zclient_pop_unrequested_payload(zclient_handler_t *zclient);

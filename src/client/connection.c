@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/types.h>
+#include <string.h>
 
 
 connection_t *
@@ -54,15 +55,38 @@ send_payload(connection_t *c, char *payload, size_t len) {
     return (send(c->client, payload, len, 0));
 }
 
+raw_received_payload_t *
+client_conn_recv(connection_t *c) {
+    if (!c || !c->connected)
+        return (NULL);
+
+    raw_received_payload_t *received = malloc(sizeof(raw_received_payload_t));
+    if (!received)
+        return (NULL);
+
+    size_t bytes_received;
+    char buffer[CLIENT_BUFFER_SIZE];
+    bytes_received = recv(c->client, buffer, CLIENT_BUFFER_SIZE, 0);
+    if (bytes_received == 0)
+        return (NULL);
+
+    char *final_buff = strdup(buffer);
+    if (!final_buff)
+        return (NULL);
+
+    received->data = final_buff;
+    received->len = bytes_received;
+
+    return (received);
+}
+
 void
 client_conn_loop(connection_t *c) {
     size_t bytes_received;
     char buffer[CLIENT_BUFFER_SIZE];
 
-    if (!c || !c->connected || !c->process) {
-        perror("Cannot start the client loop (not connected)");
+    if (!c || !c->connected || !c->process)
         return;
-    }
     for(;;) {
         bytes_received = recv(c->client, buffer, CLIENT_BUFFER_SIZE, 0);
 
