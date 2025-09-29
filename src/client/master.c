@@ -67,8 +67,8 @@ _create_id(zclient_handler_t *zclient) {
     unsigned long id;
     do {
         id = ((unsigned long)rand() << 32) | rand();
-    } while(id != 0 &&
-            !find_unresolved_request_from_list(zclient->unresolved_requests,
+    } while(id == 0 ||
+            find_unresolved_request_from_list(zclient->unresolved_requests,
                                                id));
     return (id);
 }
@@ -131,6 +131,29 @@ zclient_process_input(zclient_handler_t *zclient) {
         if (!payload)
             break;
 
+        zclient_response_parsed_t *parsed = parse_response(payload->data);
+        if (!parsed) {
+            free_received_payload(payload);
+            break;
+        }
+
+        if (!parsed->formatted)
+            push_client_payload(zclient->resolved_payload,
+                                payload->data,
+                                payload->len);
+        else {
+            unresolved_request_t *un;
+            un = find_unresolved_request_from_list(zclient->unresolved_requests,
+                                                   parsed->res->id);
+            if (un)
+                un->res = parsed->res;
+            else
+                free_response_parsed(parsed->res);
+        }
+
+
+        free_received_payload(payload);
+        free(parsed);
     }
 }
 

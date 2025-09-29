@@ -3,12 +3,14 @@
 
 
 #include <stddef.h>
+#include "client/response.h"
 
 
 typedef struct unresolved_request_s {
     struct unresolved_request_s *next;
     struct unresolved_request_s *prev;
     unsigned long id;
+    zclient_response_t *res;
 } unresolved_request_t;
 
 

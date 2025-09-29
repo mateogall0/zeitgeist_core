@@ -4,9 +4,10 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include "client/response.h"
+#include "client/unresolved.h"
 #include "client/connection.h"
 #include "client/queue.h"
-#include "client/unresolved.h"
 #include "common/methods.h"
 
 
@@ -21,14 +22,6 @@ typedef struct {
     char *data;
     size_t len;
 } zclient_unrequested_payload_t;
-
-typedef struct {
-    unsigned int id;
-    methods method;
-    char *target;
-    char *headers;
-    char *body;
-} zclient_response_t;
 
 zclient_handler_t *
 create_zclient(size_t unresolved_payload_capacity,
