@@ -7,9 +7,9 @@
 
 typedef struct zclient_response_s {
     unsigned long id;
-    char *target;
     char *headers;
     char *body;
+    char *status_msg;
 } zclient_response_t;
 
 

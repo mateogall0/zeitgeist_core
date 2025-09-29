@@ -151,7 +151,6 @@ zclient_process_input(zclient_handler_t *zclient) {
                 free_response_parsed(parsed->res);
         }
 
-
         free_received_payload(payload);
         free(parsed);
     }
@@ -160,16 +159,54 @@ zclient_process_input(zclient_handler_t *zclient) {
 
 zclient_response_t *
 zclient_get_response(zclient_handler_t *zclient,
-                     unsigned long req_id);
+                     unsigned long req_id) {
+    if (!zclient)
+        return (NULL);
+    unresolved_request_t *un;
+    un = find_unresolved_request_from_list(zclient->unresolved_requests,
+                                           req_id);
+    if (!un)
+        return (NULL);
 
-zclient_response_t *
-zclient_pop_unrequested_payload(zclient_handler_t *zclient);
+    zclient_response_t *res = un->res;
+    if (!res)
+        return (NULL);
+
+    un = remove_unresolved_request_from_list(zclient->unresolved_requests,
+                                             req_id);
+    if (!un)
+        return (NULL);
+    free_unresolved_request(un);
+    return (res);
+}
+
+received_payload_t *
+zclient_pop_unrequested_payload(zclient_handler_t *zclient) {
+    if (!zclient)
+        return (NULL);
+    return (pop_client_payload(zclient->resolved_payload));
+}
 
 void
-free_zclient_response(zclient_response_t *res);
+free_zclient_response(zclient_response_t *res) {
+    free_response_parsed(res);
+}
 
 void
-disconnect_zclient(zclient_handler_t *zclient);
+disconnect_zclient(zclient_handler_t *zclient) {
+    if (!zclient)
+        return;
+    disconnect(zclient->connection);
+}
 
 void
-destroy_zclient(zclient_handler_t *zclient);
+destroy_zclient(zclient_handler_t *zclient) {
+    if (!zclient)
+        return;
+    disconnect_zclient(zclient);
+    destroy_conn(zclient->connection);
+    free_unresolved_requests_list(zclient->unresolved_requests);
+    destroy_client_payload_queue(zclient->unresolved_payload);
+    destroy_client_payload_queue(zclient->resolved_payload);
+    free(zclient);
+}

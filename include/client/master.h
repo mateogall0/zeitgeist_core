@@ -48,7 +48,7 @@ zclient_response_t *
 zclient_get_response(zclient_handler_t *zclient,
                      unsigned long req_id);
 
-zclient_response_t *
+received_payload_t *
 zclient_pop_unrequested_payload(zclient_handler_t *zclient);
 
 void
