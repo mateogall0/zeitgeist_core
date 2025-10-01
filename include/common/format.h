@@ -1,0 +1,8 @@
+#ifndef ZCOMMON_FORMAT_H
+#define ZCOMMON_FORMAT_H
+
+
+#define ZEIT_RESPONSE_VERSION "ZEIT/RES"
+
+
+#endif

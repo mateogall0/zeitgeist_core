@@ -67,6 +67,9 @@ int8_t test_server_sessions_wheel_push();
 int8_t test_server_sessions_map_init_zerosize();
 int8_t _test_server_sessions_map_push(size_t map_size);
 
+/* Integration request */
+int8_t test_request_static_payload();
+
 /* All tests to be run go here */
 #define TESTS                                                   \
     RUN_TEST(test_client_unresolved_creation());                \
@@ -75,6 +78,7 @@ int8_t _test_server_sessions_map_push(size_t map_size);
     RUN_TEST(test_client_queue_capacity());                     \
     RUN_TEST(test_server_sessions_wheel_push());                \
     RUN_TEST(test_client_queue_pop());                          \
+    RUN_TEST(test_request_static_payload());                    \
     RUN_TEST(test_server_sessions_map_init_zerosize());         \
     RUN_TEST(test_send_unrequested_payload());                  \
     for (size_t i = 256; i <= 8192; i *= 2)                     \

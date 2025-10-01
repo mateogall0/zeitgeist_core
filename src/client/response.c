@@ -3,9 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include "common/str.h"
-
-
-#define TARGET_DELIM " "
+#include "common/format.h"
 
 
 zclient_response_parsed_t *
@@ -31,9 +29,8 @@ parse_response(char *payload) {
     res->headers = sstrdup(cut_after_first_delim(payload, "\r\n"));
     res->body = sstrdup(cut_after_first_delim(res->headers, "\r\n\r\n"));
 
-
     int i = 0;
-    char *tok = strtok(payload, TARGET_DELIM);
+    char *tok = strtok(payload, RESPONSE_TARGET_DELIM);
     while (tok) {
         if (!tok) {
             formatted = false;
@@ -41,7 +38,7 @@ parse_response(char *payload) {
         }
         switch (i) {
         case 0:
-            if (strcmp(tok, "ZEIT/RES") != 0)
+            if (strcmp(tok, ZEIT_RESPONSE_VERSION) != 0)
                 formatted = false;
             break;
         case 1:
@@ -54,12 +51,14 @@ parse_response(char *payload) {
             formatted = false;
             break;
         }
-        tok = strtok(NULL, TARGET_DELIM);
+        tok = strtok(NULL, RESPONSE_TARGET_DELIM);
         ++i;
     }
 
     parsed->res = res;
     parsed->formatted = formatted;
+
+    free(payload_dup);
 
     return (parsed);
 fail:

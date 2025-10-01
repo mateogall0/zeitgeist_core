@@ -5,6 +5,9 @@
 #include <stdbool.h>
 
 
+#define RESPONSE_TARGET_DELIM " "
+
+
 typedef struct zclient_response_s {
     unsigned long id;
     char *headers;

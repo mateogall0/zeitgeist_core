@@ -7,13 +7,11 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <string.h>
+#include <errno.h>
 
 
 connection_t *
 init_conn(void(*process)(char *, size_t)) {
-    if (!process)
-        return (NULL);
-
     connection_t *c = malloc(sizeof(connection_t));
     if (!c)
         return (NULL);
@@ -44,14 +42,17 @@ connect_client(connection_t *c, char *url, int32_t port) {
         perror("Connection failed");
         return (1);
     }
+    c->connected = 1;
 
     return (0);
 }
 
 ssize_t
 send_payload(connection_t *c, char *payload, size_t len) {
-    if (!c || !c->connected || !payload || len == 0)
+    if (!c || !c->connected || !payload || len == 0) {
+        errno = EINVAL;
         return (-1);
+    }
     return (send(c->client, payload, len, 0));
 }
 
@@ -129,8 +130,10 @@ send_request_payload(connection_t *c,
                    headers,
                    body);
 
-    if (len == -1)
+    if (len == -1) {
+        perror("asprintf failed");
         return (0); // alloc failed
+    }
 
     sent_count = send_payload(c, buf, len);
     if (sent_count < 0)

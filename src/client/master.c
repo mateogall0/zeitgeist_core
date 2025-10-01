@@ -82,7 +82,6 @@ zclient_make_request(zclient_handler_t *zclient,
     if (!zclient)
         return (0);
 
-
     unsigned long id = _create_id(zclient);
     ssize_t sent_bytes = send_request_payload(zclient->connection,
                                               method,
@@ -92,6 +91,9 @@ zclient_make_request(zclient_handler_t *zclient,
                                               body);
     if (!sent_bytes)
         return (0);
+
+    push_unresolved_request_from_list(zclient->unresolved_requests,
+                                      id);
 
     return (id);
 }
