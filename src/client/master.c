@@ -1,6 +1,7 @@
 #include "client/master.h"
 #include <stdlib.h>
 #include <time.h>
+#include "core/include/debug.h"
 
 
 zclient_handler_t *
@@ -109,6 +110,8 @@ zclient_listen_input(zclient_handler_t *zclient) {
     if (!raw)
         return (0);
 
+    print_debug("Raw received data:\n%s\n", raw->data);
+
     size_t len = raw->len;
     received_payload_t *rec = push_client_payload(zclient->unresolved_payload,
                                                   raw->data,
@@ -127,26 +130,28 @@ zclient_process_input(zclient_handler_t *zclient) {
     if (!zclient)
         return;
 
-    received_payload_t *payload;
-    while(1) {
-        payload = pop_client_payload(zclient->unresolved_payload);
-        if (!payload)
-            break;
+    int processed_any = 0;
+    received_payload_t *payload = NULL;
+
+    while ((payload = pop_client_payload(zclient->unresolved_payload)) != NULL) {
+        processed_any = 1;
 
         zclient_response_parsed_t *parsed = parse_response(payload->data);
         if (!parsed) {
             free_received_payload(payload);
-            break;
+            continue;
         }
 
-        if (!parsed->formatted)
+        if (!parsed->formatted) {
+
             push_client_payload(zclient->resolved_payload,
                                 payload->data,
                                 payload->len);
-        else {
-            unresolved_request_t *un;
-            un = find_unresolved_request_from_list(zclient->unresolved_requests,
-                                                   parsed->res->id);
+        } else {
+            unresolved_request_t *un =
+                find_unresolved_request_from_list(zclient->unresolved_requests,
+                                                  parsed->res->id);
+
             if (un)
                 un->res = parsed->res;
             else
@@ -156,8 +161,8 @@ zclient_process_input(zclient_handler_t *zclient) {
         free_received_payload(payload);
         free(parsed);
     }
-}
 
+}
 
 zclient_response_t *
 zclient_get_response(zclient_handler_t *zclient,
