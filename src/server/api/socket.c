@@ -124,7 +124,7 @@ void server_loop(void (*handle_input)(int client_fd)) {
             uint32_t evs = events[i].events;
 
             // New connection
-            if (fd == ssc->server) {
+            if (fd == ssc->server && ssc && ssc->server >= 0) {
                 for (;;) {
                     struct sockaddr_in client_addr;
                     socklen_t client_len = sizeof(client_addr);
