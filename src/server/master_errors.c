@@ -6,19 +6,43 @@
 
 char *_400(request_t *r) {
     (void)r;
-    char *msg = strdup("400 Bad request");
+    char *body = "Bad request", *msg;
+    int status = 400;
+    asprintf(&msg,
+             "ZEIT/RES %d %ld\r\nContent-Length: %zu\r\n\r\n%d %s",
+             status,
+             r->id,
+             strlen(body),
+             status,
+             body);
     return (msg);
 }
 
 char *_404(request_t *r) {
     (void)r;
-    char *msg = strdup("404 Resource not found");
+    char *body = "Resource not found", *msg;
+    int status = 404;
+    asprintf(&msg,
+             "ZEIT/RES %d %ld\r\nContent-Length: %zu\r\n\r\n%d %s",
+             status,
+             r->id,
+             strlen(body),
+             status,
+             body);
     return (msg);
 }
 
 char *_405(request_t *r) {
     (void)r;
-    char *msg = strdup("405 Method not allowed");
+    char *body = "Method not allowed", *msg;
+    int status = 405;
+    asprintf(&msg,
+             "ZEIT/RES %d %ld\r\nContent-Length: %zu\r\n\r\n%d %s",
+             status,
+             r->id,
+             strlen(body),
+             status,
+             body);
     return (msg);
 }
 
