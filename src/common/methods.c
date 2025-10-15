@@ -9,7 +9,12 @@ const char *methods_str[METHODS_COUNT] = {
     "GET",
     "PUT",
     "DELETE",
-    "POST"
+    "POST",
+    "HEAD",
+    "CONNECT",
+    "OPTIONS",
+    "TRACE",
+    "PATCH",
 };
 
 endpoint_list_t *endpoints = NULL;

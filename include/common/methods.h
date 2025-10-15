@@ -7,7 +7,12 @@ typedef enum {
     PUT,
     DELETE,
     POST,
-    METHODS_COUNT
+    HEAD,
+    CONNECT,
+    OPTIONS,
+    TRACE,
+    PATCH,
+    METHODS_COUNT,
 } methods;
 
 extern const char *methods_str[METHODS_COUNT];

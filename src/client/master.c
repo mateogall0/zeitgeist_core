@@ -1,7 +1,7 @@
 #include "client/master.h"
 #include <stdlib.h>
 #include <time.h>
-#include "core/include/debug.h"
+#include "debug.h"
 
 
 zclient_handler_t *
