@@ -59,26 +59,49 @@ send_payload(connection_t *c, char *payload, size_t len) {
 raw_received_payload_t *
 client_conn_recv(connection_t *c) {
     if (!c || !c->connected)
-        return (NULL);
+        return NULL;
+
+    char temp_buf[CLIENT_BUFFER_SIZE];
+    size_t total_len = 0;
+    char *data = NULL;
+
+    while (1) {
+        ssize_t bytes_received = recv(c->client, temp_buf, CLIENT_BUFFER_SIZE, 0);
+        if (bytes_received < 0) {
+            if (errno == EWOULDBLOCK || errno == EAGAIN)
+                break;
+            free(data);
+            return NULL;
+        }
+        if (bytes_received == 0)
+            break;
+
+        char *new_data = realloc(data, total_len + bytes_received + 1);
+        if (!new_data) {
+            free(data);
+            return NULL;
+        }
+        data = new_data;
+        memcpy(data + total_len, temp_buf, bytes_received);
+        total_len += bytes_received;
+        data[total_len] = '\0';
+
+        if (bytes_received < CLIENT_BUFFER_SIZE)
+            break;
+    }
+
+    if (!data)
+        return NULL;
 
     raw_received_payload_t *received = malloc(sizeof(raw_received_payload_t));
-    if (!received)
-        return (NULL);
+    if (!received) {
+        free(data);
+        return NULL;
+    }
 
-    size_t bytes_received;
-    char buffer[CLIENT_BUFFER_SIZE];
-    bytes_received = recv(c->client, buffer, CLIENT_BUFFER_SIZE, 0);
-    if (bytes_received == 0)
-        return (NULL);
-
-    char *final_buff = strdup(buffer);
-    if (!final_buff)
-        return (NULL);
-
-    received->data = final_buff;
-    received->len = bytes_received;
-
-    return (received);
+    received->data = data;
+    received->len = total_len;
+    return received;
 }
 
 void

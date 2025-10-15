@@ -130,11 +130,9 @@ zclient_process_input(zclient_handler_t *zclient) {
     if (!zclient)
         return;
 
-    int processed_any = 0;
     received_payload_t *payload = NULL;
 
     while ((payload = pop_client_payload(zclient->unresolved_payload)) != NULL) {
-        processed_any = 1;
 
         zclient_response_parsed_t *parsed = parse_response(payload->data);
         if (!parsed) {
