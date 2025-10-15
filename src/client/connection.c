@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <string.h>
 #include <errno.h>
+#include <fcntl.h>
 
 
 connection_t *
@@ -59,7 +60,10 @@ send_payload(connection_t *c, char *payload, size_t len) {
 raw_received_payload_t *
 client_conn_recv(connection_t *c) {
     if (!c || !c->connected)
-        return NULL;
+        return (NULL);
+
+    struct timeval tv = {0, 100000}; // 0.1 sec
+    setsockopt(c->client, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof(tv));
 
     char temp_buf[CLIENT_BUFFER_SIZE];
     size_t total_len = 0;
@@ -68,10 +72,10 @@ client_conn_recv(connection_t *c) {
     while (1) {
         ssize_t bytes_received = recv(c->client, temp_buf, CLIENT_BUFFER_SIZE, 0);
         if (bytes_received < 0) {
-            if (errno == EWOULDBLOCK || errno == EAGAIN)
-                break;
+            if (errno == EAGAIN || errno == EWOULDBLOCK)
+                break; // timeout, exit immediately
             free(data);
-            return NULL;
+            return (NULL);
         }
         if (bytes_received == 0)
             break;
@@ -79,7 +83,7 @@ client_conn_recv(connection_t *c) {
         char *new_data = realloc(data, total_len + bytes_received + 1);
         if (!new_data) {
             free(data);
-            return NULL;
+            return (NULL);
         }
         data = new_data;
         memcpy(data + total_len, temp_buf, bytes_received);
@@ -91,18 +95,19 @@ client_conn_recv(connection_t *c) {
     }
 
     if (!data)
-        return NULL;
+        return (NULL);
 
     raw_received_payload_t *received = malloc(sizeof(raw_received_payload_t));
     if (!received) {
         free(data);
-        return NULL;
+        return (NULL);
     }
 
     received->data = data;
     received->len = total_len;
-    return received;
+    return (received);
 }
+
 
 void
 client_conn_loop(connection_t *c) {

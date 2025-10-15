@@ -12,6 +12,7 @@
 #define CLIENT_BUFFER_SIZE 8192
 #endif
 
+
 typedef struct {
     int32_t client;
     struct sockaddr_in server_addr;
