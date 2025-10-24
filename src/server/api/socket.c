@@ -122,6 +122,7 @@ void server_loop(void (*handle_input)(int client_fd)) {
         for (int32_t i = 0; i < n; i++) {
             int32_t fd = events[i].data.fd;
             uint32_t evs = events[i].events;
+            print_debug("connection: %d\n", fd);
 
             // New connection
             if (fd == ssc->server && ssc && ssc->server >= 0) {

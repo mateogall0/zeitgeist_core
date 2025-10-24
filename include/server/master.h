@@ -18,6 +18,10 @@ run_core_server_loop(uint32_t server_port,
                      void (*handle_input)(int client_fd));
 
 void
+run_server_single_process(bool verbose,
+                          void (*handle_input)(int client_fd));
+
+void
 run_server_batches(uint64_t batch_size,
                    bool verbose,
                    void (*handle_input)(int client_fd));

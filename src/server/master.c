@@ -56,7 +56,23 @@ run_core_server_loop(uint32_t server_port,
     }
     init_server_socket_conn(server_port, verbose);
     initialize_static_errors();
-    run_server_batches(batch_size, verbose, handle_input);
+    if (batch_size < 2)
+        run_server_single_process(verbose, handle_input);
+    else
+        run_server_batches(batch_size, verbose, handle_input);
+}
+
+
+void
+run_server_single_process(bool verbose,
+                          void (*handle_input)(int client_fd)) {
+    if (!ssc) {
+        if (verbose) fprintf(stderr, "Server socket not initialized\n");
+        return;
+    }
+
+    server_loop(handle_input);
+    clear_core_server_loop(verbose);
 }
 
 void

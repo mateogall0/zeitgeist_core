@@ -146,8 +146,10 @@ void respond(int32_t client_fd) {
     req->endpoint = e;
 
     res = e->handler(req);
-    if (e->inmediate_res)
+    if (e->inmediate_res) {
+        print_debug("%lu: inmediate response\n", pthread_self());
         goto cleanup;
+    }
     print_debug("%lu : response below\n", pthread_self());
     print_debug("%lu : %s\n", pthread_self(), res);
     print_debug("%lu : about to send response\n", pthread_self());
@@ -201,7 +203,7 @@ send_unrequested_payload(int sockfd,
                          size_t size) {
     if (!buf)
         return (0);
-    return (send(sockfd, buf, size, 0));
+    return (send(sockfd, buf, size, MSG_NOSIGNAL));
 }
 
 void free_request(request_t *req) {
