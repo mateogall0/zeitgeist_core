@@ -30,6 +30,8 @@ request_t *_parse_request(char *buff) {
 
     req->method = NULL;
     req->target = NULL;
+    req->query_params = NULL;
+    req->path_params = NULL;
     req->headers = create_headers_list();
     req->id = 0;
 
@@ -63,6 +65,7 @@ request_t *_parse_request(char *buff) {
         i++;
         line = strtok(NULL, "\r\n");
     }
+    req->query_params = sstrdup(cut_after_first_delim(req->target, "?"));
     return (req);
 }
 
@@ -216,5 +219,12 @@ void free_request(request_t *req) {
     destroy_headers_list(req->headers);
     if (req->body)
         free(req->body);
+    if (req->query_params)
+        free(req->query_params);
+    if (req->path_params) {
+        for (int i = 0; req->path_params[i]; i++)
+            free(req->path_params[i]);
+        free(req->path_params);
+    }
     free(req);
 }

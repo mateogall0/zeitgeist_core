@@ -29,6 +29,8 @@ struct request_s {
     char *body;
     char *method;
     char *target;
+    char *query_params;
+    char **path_params;
     int client_fd;
     unsigned long id;
     endpoint_t *endpoint;
