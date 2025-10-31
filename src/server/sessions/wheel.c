@@ -36,6 +36,7 @@ connected_session_t *push_new_connected_session_towheel(int client_fd) {
     new->client_fd = client_fd;
     new->next = connected_sessions_wheel->head;
     new->prev = NULL;
+    new->meta = NULL;
 
     if (connected_sessions_wheel->head)
         connected_sessions_wheel->head->prev = new;
