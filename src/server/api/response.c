@@ -80,10 +80,7 @@ _send_response(int sockfd,
         return (0);
 
     if (get_log_requests()) {
-        printf("\033[36m%s\033[0m"
-               " %s\n",
-               method ? method : "no method",
-               target ? target : "no target");
+        PRINT_METHOD_TARGET(method, target);
     }
 
     return (send(sockfd, buf, size, 0));
