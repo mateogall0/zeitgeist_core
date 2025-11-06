@@ -75,12 +75,13 @@ _send_response(int sockfd,
                char *buf,
                size_t size,
                char *method,
-               char *target) {
+               char *target,
+               int status_code) {
     if (!buf)
         return (0);
 
     if (get_log_requests()) {
-        PRINT_METHOD_TARGET(method, target);
+        PRINT_METHOD_TARGET(method, target, status_code);
     }
 
     return (send(sockfd, buf, size, 0));
@@ -89,6 +90,7 @@ _send_response(int sockfd,
 void respond(int32_t client_fd) {
     char *res = NULL, *buffer = NULL;
     char chunk[ZBUFF_CHUNK_SIZE];
+    int status = 200;
     char *msg = NULL;
     request_t *req;
     methods m;
@@ -157,21 +159,25 @@ void respond(int32_t client_fd) {
                    res,
                    strlen(res),
                    req->method,
-                   req->target);
+                   req->target,
+                   status);
     print_debug("%lu : just sent response\n", pthread_self());
 
     goto cleanup;
 
 fail_400:
     h = get_request_error_handler(RES_STATUS_BAD_REQUEST);
+    status = 400;
     goto send_failure;
 
 fail_404:
     h = get_request_error_handler(RES_STATUS_NOT_FOUND);
+    status = 404;
     goto send_failure;
 
 fail_405:
     h = get_request_error_handler(RES_STATUS_METHOD_NOT_ALLOWED);
+    status = 405;
     goto send_failure;
 
 send_failure:
@@ -183,7 +189,8 @@ send_failure:
                    msg,
                    strlen(msg),
                    req ? req->method : NULL,
-                   req ? req->target : NULL);
+                   req ? req->target : NULL,
+                   status);
     print_debug("sent the answer");
 
 cleanup:
