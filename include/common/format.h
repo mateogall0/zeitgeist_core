@@ -3,6 +3,7 @@
 
 
 #define ZEIT_RESPONSE_VERSION "ZEIT/RES"
+#define ZEIT_MESSAGE_SIGNATURE "ZEIT/MSG"
 
 
 #endif
