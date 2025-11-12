@@ -141,7 +141,6 @@ zclient_process_input(zclient_handler_t *zclient) {
         }
 
         if (!parsed->formatted) {
-
             push_client_payload(zclient->resolved_payload,
                                 payload->data,
                                 payload->len);

@@ -26,11 +26,11 @@ parse_response(char *payload) {
         goto fail;
     bool formatted = true;
 
-    res->headers = sstrdup(cut_after_first_delim(payload, "\r\n"));
+    res->headers = sstrdup(cut_after_first_delim(payload_dup , "\r\n"));
     res->body = sstrdup(cut_after_first_delim(res->headers, "\r\n\r\n"));
 
     int i = 0;
-    char *tok = strtok(payload, RESPONSE_TARGET_DELIM);
+    char *tok = strtok(payload_dup , RESPONSE_TARGET_DELIM);
     while (tok) {
         if (!tok) {
             formatted = false;

@@ -108,7 +108,6 @@ client_conn_recv(connection_t *c) {
     return (received);
 }
 
-
 void
 client_conn_loop(connection_t *c) {
     size_t bytes_received;
