@@ -2,6 +2,11 @@
 #define DEBUG_H
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -19,5 +24,9 @@
 #define print_debug(fmt, ...) ((void)0)
 #endif
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

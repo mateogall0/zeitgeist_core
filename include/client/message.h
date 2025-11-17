@@ -1,6 +1,12 @@
 #ifndef ZCLIENT_MESSAGE_H
 #define ZCLIENT_MESSAGE_H
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 #include <stdlib.h>
 
 typedef struct {
@@ -13,5 +19,9 @@ parse_message(char *payload);
 
 void
 free_message(message_t *msg);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

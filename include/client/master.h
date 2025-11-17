@@ -1,6 +1,9 @@
 #ifndef ZCLIENT_MASTER_H
 #define ZCLIENT_MASTER_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stddef.h>
 #include <stdint.h>
@@ -59,5 +62,9 @@ disconnect_zclient(zclient_handler_t *zclient);
 
 void
 destroy_zclient(zclient_handler_t *zclient);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

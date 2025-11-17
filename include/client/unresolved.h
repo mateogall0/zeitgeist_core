@@ -2,6 +2,11 @@
 #define ZCLIENT_UNRESOLVED_H
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 #include <stddef.h>
 #include "client/response.h"
 
@@ -41,5 +46,9 @@ free_unresolved_request(unresolved_request_t *req);
 void
 free_unresolved_requests_list(unresolved_requests_list_t *list);
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

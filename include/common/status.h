@@ -1,6 +1,11 @@
 #ifndef ZCOMMON_STATUS_H
 #define ZCOMMON_STATUS_H
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 
 typedef enum {
@@ -82,5 +87,9 @@ typedef enum {
     RES_STATUS_SITE_FROZEN = 530,
     RES_STATUS_NETWORK_CONNECT_TIMEOUT_ERROR = 599
 } status_code_e;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
