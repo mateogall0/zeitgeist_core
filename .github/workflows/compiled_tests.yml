@@ -7,7 +7,7 @@ name: Tests
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "compat" ]
   pull_request:
     branches: [ "main" ]
 
@@ -15,7 +15,7 @@ jobs:
   normal-tests:
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -24,12 +24,11 @@ jobs:
     - name: run tests
       run: bin/protocol_tests
 
-
   linux-memory-tests:
     runs-on: ubuntu-latest
     needs: normal-tests
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: make
         run: make tests
       - name: run tests with memory leaks error status
