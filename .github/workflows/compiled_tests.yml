@@ -25,12 +25,24 @@ jobs:
       run: bin/protocol_tests
 
 
-  linux-memory-tests:
+  sanitizer-tests:
     runs-on: ubuntu-latest
     needs: normal-tests
+    strategy:
+      fail-fast: false
+      matrix:
+        san: [asan, ubsan, tsan, lsan]
+
     steps:
       - uses: actions/checkout@v4
-      - name: make
-        run: make tests
-      - name: run tests with memory leaks error status
-        run: ASAN_OPTIONS=detect_leaks=1:exitcode=42  ./bin/protocol_tests
+
+      - name: Build with sanitizer
+        run: make clean && make tests SAN_PROFILE=${{ matrix.san }}
+
+      - name: Run tests
+        run: |
+          if [ "${{ matrix.san }}" = "asan" ]; then
+            ASAN_OPTIONS=detect_leaks=1:exitcode=42 ./bin/protocol_tests
+          else
+            ./bin/protocol_tests
+          fi

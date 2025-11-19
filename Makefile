@@ -1,4 +1,28 @@
 CC := gcc
+
+SAN_PROFILE ?= none
+
+ifeq ($(SAN_PROFILE),asan)
+  SAN_FLAGS := -fsanitize=address,undefined
+endif
+
+ifeq ($(SAN_PROFILE),ubsan)
+  SAN_FLAGS := -fsanitize=undefined
+endif
+
+ifeq ($(SAN_PROFILE),tsan)
+  SAN_FLAGS := -fsanitize=thread
+endif
+
+ifeq ($(SAN_PROFILE),lsan)
+  SAN_FLAGS := -fsanitize=leak,undefined
+endif
+
+ifeq ($(SAN_PROFILE),none)
+  SAN_FLAGS :=
+endif
+
+
 CFLAGS := -Iinclude \
 	  -Itests/include \
 	  -Wall \
@@ -6,7 +30,8 @@ CFLAGS := -Iinclude \
 	  -std=gnu11 \
 	  -DTEST_BUILD \
 	  -g \
-	  -fsanitize=address,undefined
+	  -pthread \
+	  $(SAN_FLAGS)
 
 SRC_DIR := src
 TESTS_DIR := tests
