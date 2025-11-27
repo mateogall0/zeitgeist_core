@@ -42,6 +42,14 @@ TEST_TARGET := protocol_tests
 SRC := $(shell find $(SRC_DIR) -name '*.c')
 OBJ := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRC))
 
+COMMON_SRC := $(shell find $(SRC_DIR)/common -name '*.c')
+SERVER_SRC := $(shell find $(SRC_DIR)/server -name '*.c')
+CLIENT_SRC := $(shell find $(SRC_DIR)/client -name '*.c')
+
+COMMON_OBJ := $(patsubst $(SRC_DIR)/common/%.c,$(BUILD_DIR)/common/%.o,$(COMMON_SRC))
+SERVER_OBJ := $(patsubst $(SRC_DIR)/server/%.c,$(BUILD_DIR)/server/%.o,$(SERVER_SRC))
+CLIENT_OBJ := $(patsubst $(SRC_DIR)/client/%.c,$(BUILD_DIR)/client/%.o,$(CLIENT_SRC))
+
 TEST_SRC := $(shell find $(TESTS_DIR) -name '*.c')
 TEST_OBJ := $(patsubst $(TESTS_DIR)/%.c,$(BUILD_DIR)/tests/%.o,$(TEST_SRC))
 
@@ -67,5 +75,12 @@ $(BIN_DIR):
 
 clean:
 	rm -rf $(BUILD_DIR) $(BIN_DIR)
+
+# Build only common + server code (no link)
+server_build: $(COMMON_OBJ) $(SERVER_OBJ)
+
+# Build only common + client code (no link)
+client_build: $(COMMON_OBJ) $(CLIENT_OBJ)
+
 
 tests: $(BIN_DIR)/$(TEST_TARGET)

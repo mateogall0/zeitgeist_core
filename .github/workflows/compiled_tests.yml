@@ -12,13 +12,36 @@ on:
     branches: [ "main" ]
 
 jobs:
-  normal-tests:
+  server-compilation:
     strategy:
       matrix:
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
+    - name: build
+      run: make server_build
+
+  client-compilation:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v5
+    - name: build
+      run: make client_build
+
+  normal-tests:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    needs:
+    - server-compilation
+    - client-compilation
+    steps:
+    - uses: actions/checkout@v5
     - name: make
       run: make tests
     - name: run tests
