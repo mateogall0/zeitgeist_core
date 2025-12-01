@@ -254,14 +254,28 @@ void close_server_socket_conn() {
         puts("\nClosing server...");
     }
 
+#ifdef __linux__
     if (epoll_fd >= 0) {
         epoll_ctl(epoll_fd, EPOLL_CTL_DEL, ssc->server, NULL);
         close(epoll_fd);
         epoll_fd = -1;
     }
+#endif
+
+#ifdef __APPLE__
+    if (ssc->kqueue_fd >= 0) {
+        // Remove server from kqueue and close
+        struct kevent change;
+        EV_SET(&change, ssc->server, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+        kevent(ssc->kqueue_fd, &change, 1, NULL, 0, NULL);
+        close(ssc->kqueue_fd);
+        ssc->kqueue_fd = -1;
+    }
+#endif
 
     shutdown(ssc->server, SHUT_RDWR);
     close(ssc->server);
+
     if (ssc->verbose)
         printf("Server socket closed: fd=%d\n", ssc->server);
 
