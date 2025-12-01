@@ -12,24 +12,72 @@ on:
     branches: [ "main" ]
 
 jobs:
-  normal-tests:
+  server-compilation:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
+    - name: build
+      run: make server_build
+
+  client-compilation:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v5
+    - name: build
+      run: make client_build
+
+  normal-tests:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    needs:
+    - server-compilation
+    - client-compilation
+    steps:
+    - uses: actions/checkout@v5
     - name: make
       run: make tests
     - name: run tests
       run: bin/protocol_tests
 
+<<<<<<< HEAD
   linux-memory-tests:
+=======
+
+  sanitizer-tests:
+>>>>>>> 9834b2f87e68c398021236f4dd1ab0e7007a118a
     runs-on: ubuntu-latest
     needs: normal-tests
+    strategy:
+      fail-fast: false
+      matrix:
+        san: [asan, ubsan, tsan, lsan]
+
     steps:
+<<<<<<< HEAD
       - uses: actions/checkout@v5
       - name: make
         run: make tests
       - name: run tests with memory leaks error status
         run: ASAN_OPTIONS=detect_leaks=1:exitcode=42  ./bin/protocol_tests
+=======
+      - uses: actions/checkout@v4
+
+      - name: Build with sanitizer
+        run: make clean && make tests SAN_PROFILE=${{ matrix.san }}
+
+      - name: Run tests
+        run: |
+          if [ "${{ matrix.san }}" = "asan" ]; then
+            ASAN_OPTIONS=detect_leaks=1:exitcode=42 ./bin/protocol_tests
+          else
+            ./bin/protocol_tests
+          fi
+>>>>>>> 9834b2f87e68c398021236f4dd1ab0e7007a118a

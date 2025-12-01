@@ -2,6 +2,11 @@
 #define ZCLIENT_RESPONSE_H
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 #include <stdbool.h>
 
 
@@ -27,5 +32,10 @@ parse_response(char *payload);
 
 void
 free_response_parsed(zclient_response_t *res);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
