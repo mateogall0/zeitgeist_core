@@ -15,8 +15,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-#include <sys/epoll.h>
 #include <errno.h>
+#include "server/compat/adhoc.h"
 
 
 request_t *_parse_request(char *buff) {
@@ -117,7 +117,7 @@ void respond(int32_t client_fd) {
 
     if (!buffer) {
         close(client_fd);
-        epoll_ctl(epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
+        compat_epoll_ctl(epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
         return;
     }
 

@@ -32,6 +32,9 @@ typedef struct {
     bool verbose;
     uint32_t port;
     struct sockaddr_in client_addr;
+#ifdef __APPLE__
+    int kqueue_fd;
+#endif
 } server_socket_conn_t;
 
 

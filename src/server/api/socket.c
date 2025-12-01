@@ -12,14 +12,21 @@
 #include <stdint.h>
 #include <signal.h>
 #include <fcntl.h>
-#include <sys/epoll.h>
 #include <errno.h>
 #include <stdbool.h>
-
 
 volatile sig_atomic_t stop_loop = 0;
 server_socket_conn_t *ssc = NULL;
 int32_t epoll_fd = -1;
+
+#ifdef __APPLE__
+#include <TargetConditionals.h>
+#include <sys/event.h>
+#endif
+
+#ifdef __linux__
+#include <sys/epoll.h>
+#endif
 
 
 void init_server_socket_conn(uint32_t port, bool verbose) {
@@ -83,24 +90,24 @@ int32_t _set_nonblocking(int32_t fd) {
 }
 
 void server_loop(void (*handle_input)(int client_fd)) {
-    if (!ssc || epoll_fd >= 0)
+    if (!ssc)
         return;
 
     stop_loop = 0;
     signal(SIGINT, _handle_sigint);
     signal(SIGPIPE, SIG_IGN);
 
+#ifdef __linux__
+    if (epoll_fd >= 0) return;
+
     epoll_fd = epoll_create1(0);
-    if (epoll_fd < 0) {
-        perror("epoll_create1 failed");
-        return;
-    }
+    if (epoll_fd < 0) { perror("epoll_create1 failed"); return; }
 
     if (_set_nonblocking(ssc->server) < 0)
         perror("Failed to set server non-blocking");
 
     struct epoll_event ev = {0};
-    ev.events = EPOLLIN | EPOLLET; // edge-triggered
+    ev.events = EPOLLIN | EPOLLET;
     ev.data.fd = ssc->server;
     if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, ssc->server, &ev) < 0) {
         perror("epoll_ctl ADD server failed");
@@ -112,18 +119,13 @@ void server_loop(void (*handle_input)(int client_fd)) {
 
     while (!stop_loop) {
         int32_t n = epoll_wait(epoll_fd, events, MAX_EVENTS, TIMEOUT);
-        if (n < 0) {
-            if (errno == EINTR) continue;
-            perror("epoll_wait failed");
-            break;
-        }
+        if (n < 0) { if (errno == EINTR) continue; perror("epoll_wait failed"); break; }
 
         clear_idle_connection_sessions(epoll_fd);
 
         for (int32_t i = 0; i < n; i++) {
             int32_t fd = events[i].data.fd;
             uint32_t evs = events[i].events;
-            print_debug("connection: %d\n", fd);
 
             // New connection
             if (fd == ssc->server && ssc && ssc->server >= 0) {
@@ -177,6 +179,73 @@ void server_loop(void (*handle_input)(int client_fd)) {
 
     close(epoll_fd);
     epoll_fd = -1;
+
+#elif __APPLE__
+    int kq = kqueue();
+    if (kq < 0) { perror("kqueue failed"); return; }
+
+    struct kevent change;
+    EV_SET(&change, ssc->server, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
+    if (kevent(kq, &change, 1, NULL, 0, NULL) < 0) {
+        perror("kevent ADD server failed");
+        close(kq);
+        return;
+    }
+
+    struct kevent events[MAX_EVENTS];
+
+    while (!stop_loop) {
+        int n = kevent(kq, NULL, 0, events, MAX_EVENTS, NULL);
+        if (n < 0) { if (errno == EINTR) continue; perror("kevent failed"); break; }
+
+        for (int i = 0; i < n; i++) {
+            int fd = (int)events[i].ident;
+
+            // New client connection
+            if (fd == ssc->server && ssc && ssc->server >= 0) {
+                for (;;) {
+                    struct sockaddr_in client_addr;
+                    socklen_t client_len = sizeof(client_addr);
+                    int client_fd = accept(ssc->server,
+                                           (struct sockaddr*)&client_addr,
+                                           &client_len);
+                    if (client_fd < 0) {
+                        if (errno == EAGAIN || errno == EWOULDBLOCK) break;
+                        if (errno == EINTR || errno == ECONNABORTED) continue;
+                        perror("accept failed");
+                        break;
+                    }
+
+                    fcntl(client_fd, F_SETFL, O_NONBLOCK);
+                    fcntl(client_fd, F_SETFD, FD_CLOEXEC);
+
+                    struct kevent client_ev;
+                    EV_SET(&client_ev, client_fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
+                    if (kevent(kq, &client_ev, 1, NULL, 0, NULL) < 0) {
+                        perror("kevent ADD client failed");
+                        close(client_fd);
+                        continue;
+                    }
+
+                    add_connected_session(client_fd);
+                    if (ssc->verbose)
+                        printf("New client connected: fd=%d\n", client_fd);
+                }
+                continue;
+            }
+
+            if (events[i].flags & EV_EOF) {
+                destroy_connected_session(fd);
+                close(fd);
+                continue;
+            }
+
+            handle_input(fd);
+        }
+    }
+
+    close(kq);
+#endif
 }
 
 void close_server_socket_conn() {
@@ -187,14 +256,28 @@ void close_server_socket_conn() {
         puts("\nClosing server...");
     }
 
+#ifdef __linux__
     if (epoll_fd >= 0) {
         epoll_ctl(epoll_fd, EPOLL_CTL_DEL, ssc->server, NULL);
         close(epoll_fd);
         epoll_fd = -1;
     }
+#endif
+
+#ifdef __APPLE__
+    if (ssc->kqueue_fd >= 0) {
+        // Remove server from kqueue and close
+        struct kevent change;
+        EV_SET(&change, ssc->server, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+        kevent(ssc->kqueue_fd, &change, 1, NULL, 0, NULL);
+        close(ssc->kqueue_fd);
+        ssc->kqueue_fd = -1;
+    }
+#endif
 
     shutdown(ssc->server, SHUT_RDWR);
     close(ssc->server);
+
     if (ssc->verbose)
         printf("Server socket closed: fd=%d\n", ssc->server);
 
