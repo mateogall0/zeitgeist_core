@@ -7,7 +7,7 @@ name: Tests
 
 on:
   push:
-    branches: [ "main", "compat" ]
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
