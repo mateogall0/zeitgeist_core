@@ -2,6 +2,11 @@
 #define ZCONNECTION_H
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 #include "common/methods.h"
 #include <stdint.h>
 #include <arpa/inet.h>
@@ -41,5 +46,11 @@ send_request_payload(connection_t *c,
                      char *body);
 
 void destroy_conn(connection_t *conn);
+
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif

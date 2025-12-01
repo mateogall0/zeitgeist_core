@@ -1,6 +1,10 @@
 #ifndef ZCLIENT_QUEUE_H
 #define ZCLIENT_QUEUE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 #include <stddef.h>
 #include <stdint.h>
@@ -45,6 +49,10 @@ print_received_payload(received_payload_t *p);
 
 int
 pall_client_received_payload(received_payload_queue_t *q);
+
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif
