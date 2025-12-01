@@ -17,6 +17,7 @@
 
 volatile sig_atomic_t stop_loop = 0;
 server_socket_conn_t *ssc = NULL;
+int32_t epoll_fd = -1;
 
 #ifdef __APPLE__
 #include <TargetConditionals.h>
@@ -25,7 +26,6 @@ server_socket_conn_t *ssc = NULL;
 
 #ifdef __linux__
 #include <sys/epoll.h>
-int32_t epoll_fd = -1;
 #endif
 
 
@@ -202,11 +202,13 @@ void server_loop(void (*handle_input)(int client_fd)) {
             int fd = (int)events[i].ident;
 
             // New client connection
-            if (fd == ssc->server) {
+            if (fd == ssc->server && ssc && ssc->server >= 0) {
                 for (;;) {
                     struct sockaddr_in client_addr;
                     socklen_t client_len = sizeof(client_addr);
-                    int client_fd = accept(ssc->server, (struct sockaddr*)&client_addr, &client_len);
+                    int client_fd = accept(ssc->server,
+                                           (struct sockaddr*)&client_addr,
+                                           &client_len);
                     if (client_fd < 0) {
                         if (errno == EAGAIN || errno == EWOULDBLOCK) break;
                         if (errno == EINTR || errno == ECONNABORTED) continue;

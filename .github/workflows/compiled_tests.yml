@@ -32,25 +32,8 @@ jobs:
     - name: build
       run: make client_build
 
-  normal-tests:
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }}
-    needs:
-    - server-compilation
-    - client-compilation
-    steps:
-    - uses: actions/checkout@v5
-    - name: make
-      run: make tests
-    - name: run tests
-      run: bin/protocol_tests
-
-
   sanitizer-tests:
     runs-on: ubuntu-latest
-    needs: normal-tests
     strategy:
       fail-fast: false
       matrix:

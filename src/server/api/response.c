@@ -18,6 +18,7 @@
 #include <errno.h>
 #include "server/compat/adhoc.h"
 
+
 request_t *_parse_request(char *buff) {
     char *line, *key, *value;
     uint8_t i = 0;
