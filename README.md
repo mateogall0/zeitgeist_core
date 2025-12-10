@@ -21,3 +21,8 @@ make
 bin/protocol_tests
 ```
 Note: a specialized library for C testing was not utilized to keep the codebase and dependencies as simple as possible.
+
+## Implementations
+- [Python server](https://github.com/mateogall0/pygeist)
+- [Python client](https://github.com/mateogall0/pygeist_client)
+- [JavaScript client](https://github.com/mateogall0/jsgeist_client)
